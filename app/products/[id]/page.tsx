@@ -91,10 +91,10 @@ export default function ProductPage() {
               style={{
                 display: "block",
                 width: "100%",
-                aspectRatio: "9/7",
+                aspectRatio: "4/3",
                 borderRadius: 24,
                 overflow: "hidden",
-                background: "var(--surface-2)",
+                background: "#fff",
                 border: "1px solid var(--border)",
                 marginBottom: 12,
                 padding: 0,
@@ -106,7 +106,7 @@ export default function ProductPage() {
               <img
                 src={product.images[activeImg] || product.image}
                 alt={product.name}
-                style={{ width: "100%", height: "100%", objectFit: "contain", padding: "16px" }}
+                style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 65%" }}
               />
               <span
                 aria-hidden
@@ -148,7 +148,7 @@ export default function ProductPage() {
                     }}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={src} alt="" style={{ width: "100%", height: "100%", objectFit: "contain", padding: "4px" }} />
+                    <img src={src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 65%" }} />
                   </button>
                 ))}
               </div>

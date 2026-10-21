@@ -1,0 +1,6 @@
+<svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+  <rect x="70" y="70" width="160" height="170" rx="10" fill="#1f3b2c"/>
+  <rect x="70" y="70" width="160" height="34" fill="#16291f"/>
+  <circle cx="150" cy="165" r="55" fill="none" stroke="#e9c46a" stroke-width="4"/>
+  <text x="150" y="175" text-anchor="middle" font-family="Georgia, serif" font-size="30" fill="#e9c46a">P</text>
+</svg>

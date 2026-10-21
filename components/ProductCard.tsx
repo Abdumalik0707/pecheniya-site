@@ -55,7 +55,7 @@ export function ProductCard({ product, user, isLoggedIn }: Props) {
           <div
             style={{
               width: "100%",
-              aspectRatio: "4/3",
+              aspectRatio: "1/1",
               background: "var(--surface-2)",
               position: "relative",
               overflow: "hidden",
@@ -74,7 +74,7 @@ export function ProductCard({ product, user, isLoggedIn }: Props) {
                   height: "100%",
                   objectFit: "contain",
                   transition: "transform 0.3s",
-                  padding: "18px 14px",
+                  padding: "24px 20px",
                   boxSizing: "border-box",
                 }}
                 onMouseEnter={(e) => ((e.target as HTMLImageElement).style.transform = "scale(1.05)")}

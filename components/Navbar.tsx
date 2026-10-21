@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { OPERATOR } from "@/lib/data";
 import { useLanguage } from "@/lib/i18n";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { PhoneIcon } from "./Icons";
 
 interface StoredUser {
   name: string;
@@ -99,7 +100,7 @@ export function Navbar() {
               textDecoration: "none",
             }}
           >
-            📞 {OPERATOR.phone}
+            <PhoneIcon size={14} color="var(--accent)" /> {OPERATOR.phone}
           </a>
         </div>
 
@@ -198,7 +199,7 @@ export function Navbar() {
                         fontWeight: 600,
                       }}
                     >
-                      🚪 {t("nav_logout")}
+                      {t("nav_logout")}
                     </button>
                   </div>
                 )}
@@ -281,8 +282,8 @@ export function Navbar() {
           <Link href="/#qanday" onClick={() => setMobileOpen(false)} style={{ color: "var(--fg)", fontSize: 15, fontWeight: 600, textDecoration: "none" }}>
             {t("nav_how")}
           </Link>
-          <a href={`tel:${OPERATOR.phone.replace(/\s/g, "")}`} style={{ color: "var(--accent)", fontSize: 15, fontWeight: 700, textDecoration: "none" }}>
-            📞 {OPERATOR.phone}
+          <a href={`tel:${OPERATOR.phone.replace(/\s/g, "")}`} style={{ color: "var(--accent)", fontSize: 15, fontWeight: 700, textDecoration: "none", display: "flex", alignItems: "center", gap: 6 }}>
+            <PhoneIcon size={15} color="var(--accent)" /> {OPERATOR.phone}
           </a>
 
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 10, borderTop: "1px solid var(--border)" }}>
@@ -313,7 +314,7 @@ export function Navbar() {
                     fontSize: 14, fontWeight: 700, cursor: "pointer",
                   }}
                 >
-                  🚪 {t("nav_logout")}
+                  {t("nav_logout")}
                 </button>
               </>
             ) : (

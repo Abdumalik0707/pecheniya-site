@@ -11,6 +11,7 @@ import { BestSellers } from "@/components/BestSellers";
 import { PromoBanners } from "@/components/PromoBanners";
 import { PRODUCTS, OPERATOR, fetchProducts, Product } from "@/lib/data";
 import { useLanguage } from "@/lib/i18n";
+import { CookieIcon, StarIcon, TagIcon, BoltIcon, SendIcon, CameraIcon, PhoneIcon } from "@/components/Icons";
 
 const TYPE_FILTERS: { key: string; label: string; tag: string }[] = [
   { key: "shokoladli", label: "Shokoladli", tag: "shokolad" },
@@ -101,22 +102,22 @@ export default function Home() {
               border: "1px solid var(--border-strong)",
             }}
           >
-            📞 {OPERATOR.phone}
+            <PhoneIcon size={14} color="var(--fg)" /> {OPERATOR.phone}
           </a>
         </div>
 
         {/* Stats */}
         <div style={{ display: "flex", justifyContent: "center", gap: 40, padding: "8px 0 44px", flexWrap: "wrap" }}>
           {[
-            ["🍪", `${products.length}+`, t("stat_flavors")],
-            ["⭐", `${products.filter(p => p.isPremium).length}`, t("stat_food")],
-            ["🆕", `${products.filter(p => p.isNew).length}`, t("stat_organic")],
-            ["⚡", "60 min", t("stat_delivery")],
-          ].map(([icon, val, lbl]) => (
-            <div key={lbl} style={{ textAlign: "center" }}>
-              <div style={{ fontSize: 24, marginBottom: 4 }}>{icon}</div>
-              <div style={{ fontFamily: "var(--font-jakarta)", fontSize: 22, fontWeight: 800, color: "var(--fg)" }}>{val}</div>
-              <div style={{ color: "var(--muted)", fontSize: 13 }}>{lbl}</div>
+            { icon: <CookieIcon size={22} color="var(--accent)" />, val: `${products.length}+`, lbl: t("stat_flavors"), bg: "var(--accent-bg)" },
+            { icon: <StarIcon size={22} color="#e6a817" />, val: `${products.filter(p => p.isPremium).length}`, lbl: t("stat_food"), bg: "#fef7e0" },
+            { icon: <TagIcon size={22} color="#2d8cf0" />, val: `${products.filter(p => p.isNew).length}`, lbl: t("stat_organic"), bg: "#e8f2fd" },
+            { icon: <BoltIcon size={22} color="#e67e22" />, val: "60 min", lbl: t("stat_delivery"), bg: "#fef0e0" },
+          ].map((item) => (
+            <div key={item.lbl} style={{ textAlign: "center" }}>
+              <div style={{ width: 44, height: 44, borderRadius: 12, background: item.bg, display: "grid", placeItems: "center", margin: "0 auto 8px" }}>{item.icon}</div>
+              <div style={{ fontFamily: "var(--font-jakarta)", fontSize: 22, fontWeight: 800, color: "var(--fg)" }}>{item.val}</div>
+              <div style={{ color: "var(--muted)", fontSize: 13 }}>{item.lbl}</div>
             </div>
           ))}
         </div>
@@ -163,13 +164,13 @@ export default function Home() {
           </h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 20 }}>
             {[
-              ["1️⃣", t("how_1_title"), t("how_1_desc")],
-              ["2️⃣", t("how_2_title"), t("how_2_desc")],
-              ["3️⃣", t("how_3_title"), t("how_3_desc")],
-              ["4️⃣", t("how_4_title"), t("how_4_desc")],
-            ].map(([icon, title, desc]) => (
-              <div key={title} style={{ padding: "22px", borderRadius: 18, background: "var(--bg-2)", border: "1px solid var(--border)", textAlign: "center" }}>
-                <div style={{ fontSize: 30, marginBottom: 10 }}>{icon}</div>
+              [1, t("how_1_title"), t("how_1_desc")],
+              [2, t("how_2_title"), t("how_2_desc")],
+              [3, t("how_3_title"), t("how_3_desc")],
+              [4, t("how_4_title"), t("how_4_desc")],
+            ].map(([step, title, desc]) => (
+              <div key={title as string} style={{ padding: "22px", borderRadius: 18, background: "var(--bg-2)", border: "1px solid var(--border)", textAlign: "center" }}>
+                <div style={{ width: 40, height: 40, borderRadius: "50%", background: "var(--accent)", color: "#fff", fontFamily: "var(--font-jakarta)", fontSize: 16, fontWeight: 800, display: "grid", placeItems: "center", margin: "0 auto 12px" }}>{step}</div>
                 <h3 style={{ fontFamily: "var(--font-jakarta)", fontSize: 15, fontWeight: 700, color: "var(--fg)", marginBottom: 6 }}>{title}</h3>
                 <p style={{ color: "var(--muted)", fontSize: 13, lineHeight: 1.5 }}>{desc}</p>
               </div>
@@ -212,7 +213,7 @@ export default function Home() {
             cursor: "pointer",
           }}
         >
-          <span>🍪 Turini tanlash{subFilter ? `: ${TYPE_FILTERS.find((f) => f.key === subFilter)?.label ?? ""}` : ""}</span>
+          <span style={{ display: "flex", alignItems: "center", gap: 6 }}><CookieIcon size={16} color="var(--accent)" /> Turini tanlash{subFilter ? `: ${TYPE_FILTERS.find((f) => f.key === subFilter)?.label ?? ""}` : ""}</span>
           <span>{typeFilterOpen ? "▲" : "▼"}</span>
         </button>
 
@@ -288,8 +289,8 @@ export default function Home() {
         >
           {/* Brand */}
           <div>
-            <div style={{ fontFamily: "var(--font-jakarta)", fontSize: 18, fontWeight: 900, color: "var(--fg)", marginBottom: 10 }}>
-              🍪 PECHENIYA
+            <div style={{ fontFamily: "var(--font-jakarta)", fontSize: 18, fontWeight: 900, color: "var(--fg)", marginBottom: 10, display: "flex", alignItems: "center", gap: 8 }}>
+              <CookieIcon size={20} color="var(--accent)" /> PECHENIYA
             </div>
             <p style={{ color: "var(--muted)", fontSize: 13, lineHeight: 1.6, marginBottom: 16, maxWidth: 260 }}>
               {t("footer_about_desc")}
@@ -307,17 +308,17 @@ export default function Home() {
                 aria-label="Telegram"
                 title={OPERATOR.telegram}
               >
-                ✈️
+                <SendIcon size={14} color="var(--muted)" />
               </a>
               <span
                 style={{
                   width: 34, height: 34, borderRadius: "50%", background: "var(--surface-2)",
-                  border: "1px solid var(--border)", display: "grid", placeItems: "center", fontSize: 14,
+                  border: "1px solid var(--border)", display: "grid", placeItems: "center",
                 }}
                 aria-label="Instagram"
                 title="Instagram"
               >
-                📷
+                <CameraIcon size={14} color="var(--muted)" />
               </span>
             </div>
           </div>

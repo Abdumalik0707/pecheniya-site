@@ -91,7 +91,7 @@ export default function ProductPage() {
               style={{
                 display: "block",
                 width: "100%",
-                aspectRatio: "1/1",
+                aspectRatio: "9/7",
                 borderRadius: 24,
                 overflow: "hidden",
                 background: "var(--surface-2)",

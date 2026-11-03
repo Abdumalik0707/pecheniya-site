@@ -1,12 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Navbar } from "@/components/Navbar";
 
 export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect") || "/";
   const [phone, setPhone] = useState("+998 ");
   const [pass, setPass] = useState("");
   const [loading, setLoading] = useState(false);
@@ -41,11 +51,8 @@ export default function LoginPage() {
 
       localStorage.setItem("pecheniya_user", JSON.stringify(data.user));
 
-      if (data.user.isAdmin || data.user.type === "admin") {
-        router.push("/");
-      } else {
-        router.push("/");
-      }
+      // replace, not push — otherwise "back" returns to the sign-in form
+      router.replace(redirectTo);
     } catch {
       setError("Server bilan bog'lanishda xatolik");
     } finally {
@@ -176,7 +183,11 @@ export default function LoginPage() {
 
               <p style={{ textAlign: "center", color: "var(--muted)", fontSize: 14, marginTop: 4 }}>
                 Akkaunt yo&apos;qmi?{" "}
-                <Link href="/auth/register" style={{ color: "var(--accent)", fontWeight: 600, textDecoration: "none" }}>
+                <Link
+                  href={redirectTo === "/" ? "/auth/register" : `/auth/register?redirect=${encodeURIComponent(redirectTo)}`}
+                  replace
+                  style={{ color: "var(--accent)", fontWeight: 600, textDecoration: "none" }}
+                >
                   Ro&apos;yxatdan o&apos;tish
                 </Link>
               </p>

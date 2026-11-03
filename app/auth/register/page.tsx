@@ -64,7 +64,9 @@ function RegisterForm() {
       setSuccess(true);
 
       setTimeout(() => {
-        router.push(redirectTo);
+        // replace, not push — otherwise "back" from the product page lands
+        // the freshly registered user on the sign-up form again
+        router.replace(redirectTo);
       }, 1500);
     } catch {
       setError("Server bilan bog'lanishda xatolik");
@@ -287,7 +289,11 @@ function RegisterForm() {
 
                 <p style={{ textAlign: "center", color: "var(--muted)", fontSize: 14, marginTop: 4 }}>
                   Akkaunt bormi?{" "}
-                  <Link href="/auth/login" style={{ color: "var(--accent)", fontWeight: 600, textDecoration: "none" }}>
+                  <Link
+                    href={redirectTo === "/" ? "/auth/login" : `/auth/login?redirect=${encodeURIComponent(redirectTo)}`}
+                    replace
+                    style={{ color: "var(--accent)", fontWeight: 600, textDecoration: "none" }}
+                  >
                     Kirish
                   </Link>
                 </p>

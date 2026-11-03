@@ -1,6 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Product from "@/models/Product";
+
+// Customer site: products are READ-ONLY.
+// Creation/editing/deletion happens through the admin panel.
 
 export async function GET() {
   try {
@@ -10,29 +13,5 @@ export async function GET() {
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Xatolik";
     return NextResponse.json({ success: false, error: message }, { status: 500 });
-  }
-}
-
-export async function POST(req: NextRequest) {
-  try {
-    await connectDB();
-    const body = await req.json();
-
-    if (!body.name || !body.price || !body.image || !body.categoryLabel || !body.weight) {
-      return NextResponse.json(
-        { success: false, error: "Nomi, narxi, rasmi, kategoriyasi va og'irligi majburiy" },
-        { status: 400 }
-      );
-    }
-
-    if (!body.images || body.images.length === 0) {
-      body.images = [body.image];
-    }
-
-    const product = await Product.create(body);
-    return NextResponse.json({ success: true, product }, { status: 201 });
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "Xatolik";
-    return NextResponse.json({ success: false, error: message }, { status: 400 });
   }
 }

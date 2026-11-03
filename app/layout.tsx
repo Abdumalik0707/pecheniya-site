@@ -1,19 +1,22 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, DM_Sans } from "next/font/google";
+import { Lilita_One, Rubik } from "next/font/google";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { LanguageProvider } from "@/lib/i18n";
 import { TopBar } from "@/components/TopBar";
 import "./globals.css";
 
-const jakarta = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  variable: "--font-jakarta",
+// Bubbly display font for headings (Latin only). Cyrillic glyphs fall back to Rubik.
+const lilita = Lilita_One({
+  weight: "400",
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-lilita",
   display: "swap",
+  adjustFontFallback: false,
 });
 
-const dm = DM_Sans({
-  subsets: ["latin"],
-  variable: "--font-dm",
+const rubik = Rubik({
+  subsets: ["latin", "latin-ext", "cyrillic"],
+  variable: "--font-rubik",
   display: "swap",
 });
 
@@ -25,7 +28,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="uz" suppressHydrationWarning>
-      <body className={`${jakarta.variable} ${dm.variable}`}>
+      <body className={`${lilita.variable} ${rubik.variable}`}>
         <ThemeProvider>
           <LanguageProvider>
             <TopBar />

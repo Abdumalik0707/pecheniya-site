@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-import type { Product } from "@/lib/data";
+import { PAYMENT_CARD, type Product } from "@/lib/data";
+import { priceFor } from "@/lib/pricing";
 import { useLanguage } from "@/lib/i18n";
 
 const LocationMap = dynamic(() => import("./LocationMap").then((m) => m.LocationMap), {
@@ -29,7 +30,12 @@ export function OrderModal({ product, onClose, user }: Props) {
     (user?.type as "individual" | "shop") || "individual"
   );
   const [location, setLocation] = useState<{ lat: number; lng: number; address: string } | null>(null);
-  const [step, setStep] = useState<"info" | "map" | "confirm" | "done">("info");
+  const [step, setStep] = useState<"info" | "map" | "payment" | "confirm" | "done">("info");
+  const [paymentMethod, setPaymentMethod] = useState<"cash" | "card" | null>(null);
+  const [receipt, setReceipt] = useState<{ id: string; preview: string } | null>(null);
+  const [receiptUploading, setReceiptUploading] = useState(false);
+  const [receiptError, setReceiptError] = useState("");
+  const [copied, setCopied] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -39,7 +45,44 @@ export function OrderModal({ product, onClose, user }: Props) {
     return () => { document.body.style.overflow = ""; };
   }, []);
 
-  const total = product.price * (qty ?? 1);
+  // Logged-in customers get their account's price list; guests pick a type.
+  const unitPrice = priceFor(product, user?.type || customerType);
+  const total = unitPrice * (qty ?? 1);
+  const paymentReady = paymentMethod === "cash" || (paymentMethod === "card" && !!receipt && !receiptUploading);
+
+  async function handleReceiptFile(file: File | undefined) {
+    if (!file) return;
+    setReceiptError("");
+    if (!file.type.startsWith("image/")) {
+      setReceiptError(t("pay_receipt_type_err"));
+      return;
+    }
+    setReceiptUploading(true);
+    try {
+      const blob = await compressImage(file);
+      const fd = new FormData();
+      fd.append("file", blob, "receipt.jpg");
+      const res = await fetch("/api/receipts", { method: "POST", body: fd });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || t("pay_receipt_err"));
+      setReceipt({ id: data.receiptId, preview: URL.createObjectURL(blob) });
+    } catch (err) {
+      setReceipt(null);
+      setReceiptError(err instanceof Error ? err.message : t("pay_receipt_err"));
+    } finally {
+      setReceiptUploading(false);
+    }
+  }
+
+  function copyCard() {
+    navigator.clipboard
+      ?.writeText(PAYMENT_CARD.number.replace(/\s/g, ""))
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1500);
+      })
+      .catch(() => {});
+  }
 
   async function handleSubmit() {
     if (!location) { setStep("map"); return; }
@@ -56,12 +99,14 @@ export function OrderModal({ product, onClose, user }: Props) {
           customerLat: location.lat,
           customerLng: location.lng,
           customerType,
+          paymentMethod,
+          receiptId: paymentMethod === "card" ? receipt?.id : undefined,
           products: [
             {
               productId: product.id,
               productName: product.name,
               quantity: qty,
-              price: product.price,
+              price: unitPrice,
             },
           ],
           totalAmount: total,
@@ -149,7 +194,10 @@ export function OrderModal({ product, onClose, user }: Props) {
                   {product.name}
                 </h2>
                 <p style={{ color: "var(--accent)", fontWeight: 700, fontSize: 15, marginTop: 2 }}>
-                  {product.price.toLocaleString()} so&apos;m / {product.unit}
+                  {unitPrice.toLocaleString()} so&apos;m / {product.unit}
+                  {(user?.type || customerType) === "shop" && (
+                    <span style={{ color: "var(--muted)", fontWeight: 600, fontSize: 12 }}> · {t("pay_shop_price")}</span>
+                  )}
                 </p>
               </div>
               <button
@@ -173,14 +221,14 @@ export function OrderModal({ product, onClose, user }: Props) {
 
             {/* Step tabs */}
             <div style={{ display: "flex", gap: 6, marginBottom: 20 }}>
-              {["info", "map", "confirm"].map((s, i) => (
+              {STEPS.map((s, i) => (
                 <div
                   key={s}
                   style={{
                     flex: 1,
                     height: 3,
                     borderRadius: 4,
-                    background: ["info", "map", "confirm"].indexOf(step) >= i
+                    background: (STEPS as readonly string[]).indexOf(step) >= i
                       ? "var(--accent)"
                       : "var(--border-strong)",
                     transition: "background 0.3s",
@@ -325,9 +373,156 @@ export function OrderModal({ product, onClose, user }: Props) {
                     {t("om_back")}
                   </button>
                   <button
-                    onClick={() => location && setStep("confirm")}
+                    onClick={() => location && setStep("payment")}
                     disabled={!location}
                     style={{ ...primaryBtnStyle, flex: 2, opacity: location ? 1 : 0.4 }}
+                  >
+                    {t("om_confirm")}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {step === "payment" && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <div>
+                  <label style={labelStyle}>{t("pay_title")}</label>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                    {([
+                      ["cash", t("pay_cash"), t("pay_cash_desc"), "💵"],
+                      ["card", t("pay_card"), t("pay_card_desc"), "💳"],
+                    ] as const).map(([val, lbl, desc, icon]) => {
+                      const active = paymentMethod === val;
+                      return (
+                        <button
+                          key={val}
+                          type="button"
+                          onClick={() => setPaymentMethod(val)}
+                          aria-pressed={active}
+                          style={{
+                            textAlign: "left",
+                            padding: "14px",
+                            borderRadius: 16,
+                            border: `2px solid ${active ? "var(--accent)" : "var(--border)"}`,
+                            background: active ? "var(--accent-bg)" : "var(--surface-2)",
+                            cursor: "pointer",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 4,
+                          }}
+                        >
+                          <span style={{ fontSize: 22 }}>{icon}</span>
+                          <span style={{ fontWeight: 800, fontSize: 15, color: active ? "var(--accent-text)" : "var(--fg)" }}>{lbl}</span>
+                          <span style={{ fontSize: 12, color: "var(--muted)", lineHeight: 1.35 }}>{desc}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {paymentMethod === "card" && (
+                  <>
+                    {/* Card to transfer to */}
+                    <div
+                      style={{
+                        position: "relative",
+                        borderRadius: 18,
+                        padding: "18px 20px",
+                        color: "#fff6ea",
+                        background: "linear-gradient(135deg, #e2231a 0%, #b3140d 55%, #5b2a14 100%)",
+                        boxShadow: "0 12px 30px rgba(91,42,20,0.25)",
+                        overflow: "hidden",
+                      }}
+                    >
+                      {PAYMENT_CARD.isDemo && (
+                        <span style={{ position: "absolute", top: 12, right: 12, fontSize: 10, fontWeight: 800, letterSpacing: "0.08em", padding: "3px 8px", borderRadius: 999, background: "#ffc72c", color: "#3b1a0b" }}>
+                          DEMO
+                        </span>
+                      )}
+                      <p style={{ fontSize: 12, opacity: 0.8, marginBottom: 14 }}>{PAYMENT_CARD.bank}</p>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
+                        <span style={{ fontSize: 21, fontWeight: 700, letterSpacing: "0.08em", fontVariantNumeric: "tabular-nums" }}>
+                          {PAYMENT_CARD.number}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={copyCard}
+                          style={{ padding: "6px 12px", borderRadius: 999, border: "1px solid rgba(255,246,234,0.5)", background: "rgba(255,246,234,0.15)", color: "#fff6ea", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                        >
+                          {copied ? t("pay_copied") : t("pay_copy")}
+                        </button>
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 14, fontSize: 12.5, gap: 10 }}>
+                        <span style={{ opacity: 0.9 }}>{PAYMENT_CARD.holder}</span>
+                        <span style={{ fontWeight: 800 }}>{total.toLocaleString()} so&apos;m</span>
+                      </div>
+                    </div>
+                    <p style={{ fontSize: 12.5, color: "var(--muted)", lineHeight: 1.5, marginTop: -6 }}>
+                      {t("pay_card_hint")}
+                    </p>
+
+                    {/* Receipt upload */}
+                    <div>
+                      <label style={labelStyle}>{t("pay_receipt")}</label>
+                      <label
+                        style={{
+                          position: "relative",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 8,
+                          minHeight: 130,
+                          padding: 14,
+                          borderRadius: 16,
+                          border: `2px dashed ${receipt ? "var(--green)" : receiptError ? "var(--red)" : "var(--border-strong)"}`,
+                          background: "var(--surface-2)",
+                          cursor: receiptUploading ? "wait" : "pointer",
+                          textAlign: "center",
+                        }}
+                      >
+                        <input
+                          type="file"
+                          accept="image/*"
+                          disabled={receiptUploading}
+                          onChange={(e) => { handleReceiptFile(e.target.files?.[0]); e.target.value = ""; }}
+                          style={{ position: "absolute", width: 1, height: 1, opacity: 0, pointerEvents: "none" }}
+                        />
+                        {receiptUploading ? (
+                          <span style={{ fontSize: 14, color: "var(--muted)", fontWeight: 600 }}>{t("pay_receipt_uploading")}</span>
+                        ) : receipt ? (
+                          <>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={receipt.preview} alt={t("pay_receipt")} style={{ maxHeight: 160, maxWidth: "100%", borderRadius: 10, objectFit: "contain" }} />
+                            <span style={{ fontSize: 13, color: "var(--green)", fontWeight: 700 }}>✓ {t("pay_receipt_done")}</span>
+                            <span style={{ fontSize: 11.5, color: "var(--muted)" }}>{t("pay_receipt_change")}</span>
+                          </>
+                        ) : (
+                          <>
+                            <span style={{ fontSize: 28 }}>🧾</span>
+                            <span style={{ fontSize: 14, fontWeight: 700, color: "var(--fg)" }}>{t("pay_receipt_cta")}</span>
+                            <span style={{ fontSize: 11.5, color: "var(--muted)" }}>JPG, PNG, WEBP</span>
+                          </>
+                        )}
+                      </label>
+                      {receiptError && (
+                        <p style={{ color: "var(--red)", fontSize: 12.5, marginTop: 6 }}>⚠️ {receiptError}</p>
+                      )}
+                    </div>
+                  </>
+                )}
+
+                <div style={{ display: "flex", gap: 10 }}>
+                  <button
+                    onClick={() => setStep("map")}
+                    style={{ ...primaryBtnStyle, background: "var(--surface-2)", color: "var(--fg)", flex: 1 }}
+                  >
+                    {t("om_back")}
+                  </button>
+                  <button
+                    onClick={() => paymentReady && setStep("confirm")}
+                    disabled={!paymentReady}
+                    style={{ ...primaryBtnStyle, flex: 2, opacity: paymentReady ? 1 : 0.4 }}
                   >
                     {t("om_confirm")}
                   </button>
@@ -345,6 +540,7 @@ export function OrderModal({ product, onClose, user }: Props) {
                   [t("om_product"), product.name],
                   [t("om_qty"), `${qty} ${product.unit}`],
                   [t("om_amount"), `${total.toLocaleString()} so'm`],
+                  [t("pay_title"), paymentMethod === "card" ? `${t("pay_card")} · ${t("pay_receipt_done")}` : t("pay_cash")],
                   [t("om_name"), name || user?.name || "—"],
                   [t("om_phone"), phone || user?.phone || "—"],
                   [t("om_address_label"), location?.address?.slice(0, 60) + "..." || "—"],
@@ -371,7 +567,7 @@ export function OrderModal({ product, onClose, user }: Props) {
 
                 <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
                   <button
-                    onClick={() => setStep("map")}
+                    onClick={() => setStep("payment")}
                     style={{ ...primaryBtnStyle, background: "var(--surface-2)", color: "var(--fg)", flex: 1 }}
                   >
                     {t("om_back")}
@@ -391,6 +587,34 @@ export function OrderModal({ product, onClose, user }: Props) {
       </div>
     </div>
   );
+}
+
+const STEPS = ["info", "map", "payment", "confirm"] as const;
+
+// Downscale phone screenshots/photos before upload so receipts stay small.
+async function compressImage(file: File): Promise<Blob> {
+  const MAX = 1600;
+  let bitmap: ImageBitmap;
+  try {
+    bitmap = await createImageBitmap(file);
+  } catch {
+    return file; // format the browser can't decode — the server will reject it
+  }
+  const scale = Math.min(1, MAX / Math.max(bitmap.width, bitmap.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(bitmap.width * scale);
+  canvas.height = Math.round(bitmap.height * scale);
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return file;
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  bitmap.close();
+  for (const q of [0.82, 0.65, 0.5]) {
+    const blob = await new Promise<Blob | null>((res) => canvas.toBlob(res, "image/jpeg", q));
+    if (blob && blob.size <= 2.5 * 1024 * 1024) return blob;
+  }
+  return file;
 }
 
 const labelStyle: React.CSSProperties = {

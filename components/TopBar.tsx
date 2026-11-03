@@ -10,8 +10,8 @@ export function TopBar() {
   return (
     <div
       style={{
-        background: "var(--accent-text)",
-        color: "#fff",
+        background: "var(--brand-choco-deep)",
+        color: "var(--brand-cream)",
         fontSize: 12.5,
         fontWeight: 600,
       }}

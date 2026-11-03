@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import type { Product } from "@/lib/data";
 import { OrderModal } from "./OrderModal";
 import { useLanguage } from "@/lib/i18n";
+import { CookieIcon, StarIcon } from "./Icons";
+import { priceFor } from "@/lib/pricing";
 
 interface Props {
   product: Product;
@@ -29,162 +31,59 @@ export function ProductCard({ product, user, isLoggedIn }: Props) {
 
   return (
     <>
-      <div
-        style={{
-          background: "var(--surface)",
-          border: "1px solid var(--border)",
-          borderRadius: 20,
-          overflow: "hidden",
-          transition: "box-shadow 0.2s, transform 0.2s",
-          display: "flex",
-          flexDirection: "column",
-          width: "100%",
-          height: "100%",
-        }}
-        onMouseEnter={(e) => {
-          (e.currentTarget as HTMLDivElement).style.boxShadow = "var(--shadow-lg)";
-          (e.currentTarget as HTMLDivElement).style.transform = "translateY(-3px)";
-        }}
-        onMouseLeave={(e) => {
-          (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
-          (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)";
-        }}
-      >
+      <div className="pcard">
         {/* Image — click goes to detail page */}
-        <Link href={`/products/${product.id}`} style={{ textDecoration: "none" }}>
-          <div
-            style={{
-              width: "100%",
-              aspectRatio: "4/3",
-              background: "#fff",
-              position: "relative",
-              overflow: "hidden",
-              borderBottom: "1px solid var(--border)",
-            }}
-          >
-            {product.image ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={product.image}
-                alt={product.name}
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  objectPosition: "center 65%",
-                  transition: "transform 0.3s",
-                }}
-                onMouseEnter={(e) => ((e.target as HTMLImageElement).style.transform = "scale(1.05)")}
-                onMouseLeave={(e) => ((e.target as HTMLImageElement).style.transform = "scale(1)")}
-              />
-            ) : (
-              <div style={{ display: "grid", placeItems: "center", height: "100%", fontSize: 64, opacity: 0.4 }}>🍪</div>
+        <Link href={`/products/${product.id}`} className="pcard-img">
+          {product.image ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={product.image} alt={product.name} />
+          ) : (
+            <div style={{ display: "grid", placeItems: "center", height: "100%", opacity: 0.3 }}>
+              <CookieIcon size={56} color="var(--muted)" />
+            </div>
+          )}
+
+          <div className="pcard-badges">
+            {product.isNew && (
+              <span className="pcard-badge" style={{ background: "var(--brand-red)" }}>
+                YANGI
+              </span>
             )}
-
-            {/* Badges */}
-            <div style={{ position: "absolute", top: 10, left: 10, display: "flex", gap: 5 }}>
-              {product.isNew && (
-                <span style={{ fontSize: 10, fontWeight: 800, padding: "3px 8px", borderRadius: 8, background: "var(--blue)", color: "#fff" }}>
-                  YANGI
-                </span>
-              )}
-              {product.isPremium && (
-                <span style={{ fontSize: 10, fontWeight: 800, padding: "3px 8px", borderRadius: 8, background: "var(--amber)", color: "#fff" }}>
-                  ⭐ PREMIUM
-                </span>
-              )}
-            </div>
-
-            <div
-              style={{
-                position: "absolute",
-                top: 10,
-                right: 10,
-                background: "var(--accent)",
-                color: "#fff",
-                fontSize: 10,
-                fontWeight: 700,
-                padding: "3px 10px",
-                borderRadius: 10,
-              }}
-            >
-              {product.weight}
-            </div>
+            {product.isPremium && (
+              <span className="pcard-badge" style={{ background: "var(--brand-choco)" }}>
+                <StarIcon size={10} color="#ffc72c" /> PREMIUM
+              </span>
+            )}
           </div>
+
+          <div className="pcard-weight">{product.weight}</div>
         </Link>
 
         {/* Info */}
-        <div style={{ padding: "14px 16px 18px", flex: 1, display: "flex", flexDirection: "column" }}>
-          <p style={{ color: "var(--muted)", fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>
-            {product.brand}
-          </p>
-          <Link href={`/products/${product.id}`} style={{ textDecoration: "none" }}>
-            <h3
-              style={{
-                fontFamily: "var(--font-jakarta)",
-                fontSize: 15,
-                fontWeight: 700,
-                color: "var(--fg)",
-                marginBottom: 6,
-                lineHeight: 1.3,
-              }}
-            >
-              {product.name}
-            </h3>
+        <div className="pcard-body">
+          <div className="pcard-stars" aria-label="5/5">
+            {[0, 1, 2, 3, 4].map((i) => (
+              <StarIcon key={i} size={13} color="#f2a900" />
+            ))}
+          </div>
+          <Link href={`/products/${product.id}`} className="pcard-name">
+            {product.name}
           </Link>
-          <p style={{ color: "var(--muted)", fontSize: 12.5, lineHeight: 1.5, marginBottom: 12, flex: 1 }}>
-            {product.description}
-          </p>
+          <p className="pcard-desc">{product.description}</p>
 
-          {/* Price row */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-            <div>
-              <span style={{ color: "var(--accent)", fontWeight: 800, fontSize: 17 }}>
-                {product.price.toLocaleString()}
-              </span>
-              <span style={{ color: "var(--muted)", fontSize: 11 }}> so&apos;m / {product.unit}</span>
-            </div>
-            <div style={{ color: "var(--muted)", fontSize: 11 }}>
-              {product.weight}
-            </div>
+          <div className="pcard-price">
+            <b>{priceFor(product, user?.type).toLocaleString()}</b>
+            <span>so&apos;m / {product.unit}{user?.type === "shop" ? " · do'kon" : ""}</span>
           </div>
 
-          {/* Buttons */}
-          <div style={{ display: "flex", gap: 6 }}>
-            <button
-              onClick={handleOrderClick}
-              style={{
-                flex: 2,
-                padding: "9px 0",
-                borderRadius: 12,
-                background: "var(--accent)",
-                color: "#fff",
-                fontWeight: 700,
-                fontSize: 13,
-                border: "none",
-                cursor: "pointer",
-              }}
-            >
+          <div className="pcard-actions">
+            <button onClick={handleOrderClick} className="pcard-order">
               {t("order_btn")}
             </button>
-            <Link
-              href={`/products/${product.id}`}
-              style={{
-                flex: 1,
-                padding: "9px 0",
-                borderRadius: 12,
-                border: "1px solid var(--border-strong)",
-                background: "transparent",
-                color: "var(--fg)",
-                fontWeight: 600,
-                fontSize: 13,
-                textDecoration: "none",
-                textAlign: "center",
-              }}
-            >
-              {t("view_btn")}
+            <Link href={`/products/${product.id}`} className="pcard-view" aria-label={t("view_btn")} title={t("view_btn")}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 12h14M13 6l6 6-6 6" />
+              </svg>
             </Link>
           </div>
         </div>

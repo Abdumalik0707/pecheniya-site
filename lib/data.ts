@@ -10,6 +10,8 @@ export interface Product {
   category: Category;
   categoryLabel: string;
   price: number;
+  /** Shop (wholesale) customer price; empty = price + 10% (lib/pricing.ts) */
+  shopPrice?: number;
   weight: string;
   netWeight: string;
   unit: string;
@@ -426,6 +428,15 @@ export const OPERATOR = {
   telegramUrl: "https://t.me/smag_pechenie",
   address: "Toshkent viloyati, Toshkent tumani, Diydor MFY, Shifobaxshsuvlar ko'chasi",
   website: "t.me/smag_pechenie",
+};
+
+// DEMO card details shown on the payment step. Replace with the real
+// company card before going live.
+export const PAYMENT_CARD = {
+  number: "8600 1234 5678 9012",
+  holder: "SMAG KWIT GROUP",
+  bank: "Uzcard · DEMO",
+  isDemo: true,
 };
 
 export function getProductById(id: string): Product | undefined {

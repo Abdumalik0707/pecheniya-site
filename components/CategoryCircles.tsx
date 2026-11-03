@@ -1,12 +1,14 @@
 "use client";
 
-interface CircleItem {
+import { useLanguage } from "@/lib/i18n";
+
+interface CategoryItem {
   icon: string;
   label: string;
   sub: string;
 }
 
-const CIRCLES: CircleItem[] = [
+const CATEGORIES: CategoryItem[] = [
   { icon: "/products/smag/pp002-lochira.jpg", label: "Lochira", sub: "Lochira seriyasi" },
   { icon: "/products/smag/pp006-sasha-masha.jpg", label: "Sasha-Masha", sub: "Sasha-Masha seriyasi" },
   { icon: "/products/smag/pp008-vostochny-kunjut.jpg", label: "Sharqona kunjut", sub: "Sharqona kunjut" },
@@ -17,58 +19,27 @@ const CIRCLES: CircleItem[] = [
 ];
 
 interface Props {
-  onSelect: (sub: string) => void;
+  onSelect: (sub: string | null) => void;
 }
 
+// Arch-topped category cards with a coloured label tab (kept the old export name).
 export function CategoryCircles({ onSelect }: Props) {
+  const { t } = useLanguage();
+
   return (
-    <div
-      style={{
-        display: "flex",
-        gap: 22,
-        overflowX: "auto",
-        padding: "6px 4px 10px",
-        justifyContent: "center",
-        flexWrap: "wrap",
-      }}
-    >
-      {CIRCLES.map((c) => (
-        <button
-          key={c.label}
-          onClick={() => onSelect(c.sub)}
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 10,
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            flexShrink: 0,
-            width: 96,
-          }}
-        >
-          <div
-            style={{
-              width: 84,
-              height: 84,
-              borderRadius: "50%",
-              background: "var(--surface-2)",
-              border: "1px solid var(--border)",
-              display: "grid",
-              placeItems: "center",
-              overflow: "hidden",
-              transition: "border-color 0.15s, transform 0.15s",
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--accent)"; e.currentTarget.style.transform = "translateY(-3px)"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.transform = "translateY(0)"; }}
-          >
+    <div className="cat-grid">
+      {CATEGORIES.map((c) => (
+        <button key={c.label} className="cat-card" onClick={() => onSelect(c.sub || null)}>
+          <div className="cat-card-img">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={c.icon} alt={c.label} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            <img src={c.icon} alt={c.label} loading="lazy" />
           </div>
-          <span style={{ fontSize: 12.5, fontWeight: 700, color: "var(--fg)", textAlign: "center", lineHeight: 1.3 }}>
-            {c.label}
-          </span>
+          <div className="cat-card-tab">
+            <b>{c.label}</b>
+            <span className="btn btn-yellow btn-sm">
+              {t("cats_btn")} <span className="arrow-ico">→</span>
+            </span>
+          </div>
         </button>
       ))}
     </div>

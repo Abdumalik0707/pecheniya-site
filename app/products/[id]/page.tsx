@@ -5,6 +5,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { getProductById, fetchProductById, OPERATOR, Product } from "@/lib/data";
 import { OrderModal } from "@/components/OrderModal";
+import { priceFor } from "@/lib/pricing";
 import { Navbar } from "@/components/Navbar";
 
 export default function ProductPage() {
@@ -13,6 +14,7 @@ export default function ProductPage() {
   const searchParams = useSearchParams();
   const staticProduct = getProductById(id);
   const [product, setProduct] = useState<Product | undefined>(staticProduct);
+  const [loading, setLoading] = useState(!staticProduct);
   const [activeImg, setActiveImg] = useState(0);
   const [ordering, setOrdering] = useState(false);
   const [zoomed, setZoomed] = useState(false);
@@ -27,7 +29,9 @@ export default function ProductPage() {
         setOrdering(true);
       }
     }
-    fetchProductById(id).then((p) => { if (p) setProduct(p); });
+    fetchProductById(id)
+      .then((p) => { if (p) setProduct(p); })
+      .finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -43,11 +47,31 @@ export default function ProductPage() {
     };
   }, [zoomed]);
 
+  if (loading) {
+    return (
+      <div style={{ minHeight: "100vh", background: "var(--bg)" }}>
+        <Navbar />
+        <div style={{ display: "grid", placeItems: "center", padding: "120px 24px" }}>
+          <div
+            style={{
+              width: 34,
+              height: 34,
+              borderRadius: "50%",
+              border: "3px solid var(--border)",
+              borderTopColor: "var(--accent)",
+              animation: "pd-spin 0.7s linear infinite",
+            }}
+          />
+          <style>{`@keyframes pd-spin { to { transform: rotate(360deg); } }`}</style>
+        </div>
+      </div>
+    );
+  }
+
   if (!product) {
     return (
       <div style={{ minHeight: "100vh", background: "var(--bg)", display: "grid", placeItems: "center" }}>
         <div style={{ textAlign: "center" }}>
-          <div style={{ fontSize: 48, marginBottom: 16 }}>😕</div>
           <h1 style={{ color: "var(--fg)", marginBottom: 12 }}>Mahsulot topilmadi</h1>
           <Link href="/" style={{ color: "var(--accent)" }}>Asosiy sahifaga qaytish</Link>
         </div>
@@ -63,20 +87,15 @@ export default function ProductPage() {
         {/* Orqaga qaytish */}
         <div style={{ marginBottom: 32 }}>
           <button
-            onClick={() => router.back()}
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 6,
-              background: "none",
-              border: "none",
-              padding: 0,
-              fontSize: 14,
-              color: "var(--muted)",
-              cursor: "pointer",
+            onClick={() => {
+              // opened from a shared link there is no page to go back to
+              if (window.history.length > 1) router.back();
+              else router.push("/#mahsulotlar");
             }}
+            className="btn btn-red btn-sm"
+            style={{ fontSize: 14, padding: "10px 20px" }}
           >
-            ← Orqaga qaytish
+            <span aria-hidden="true" style={{ fontSize: 18, lineHeight: 1 }}>←</span> Orqaga qaytish
           </button>
         </div>
 
@@ -91,7 +110,7 @@ export default function ProductPage() {
               style={{
                 display: "block",
                 width: "100%",
-                aspectRatio: "4/3",
+                aspectRatio: "3/2",
                 borderRadius: 24,
                 overflow: "hidden",
                 background: "#fff",
@@ -106,7 +125,7 @@ export default function ProductPage() {
               <img
                 src={product.images[activeImg] || product.image}
                 alt={product.name}
-                style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 65%" }}
+                style={{ width: "100%", height: "100%", objectFit: "contain" }}
               />
               <span
                 aria-hidden
@@ -144,11 +163,11 @@ export default function ProductPage() {
                       border: `2px solid ${activeImg === i ? "var(--accent)" : "var(--border)"}`,
                       padding: 0,
                       cursor: "pointer",
-                      background: "var(--surface-2)",
+                      background: "#fff",
                     }}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 65%" }} />
+                    <img src={src} alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
                   </button>
                 ))}
               </div>
@@ -267,15 +286,12 @@ export default function ProductPage() {
             >
               <div>
                 <p style={{ color: "var(--muted)", fontSize: 12, marginBottom: 4 }}>
-                  📦 {product.weight} quti narxi
+                  📦 {product.weight} quti narxi{currentUser?.type === "shop" ? " · do'kon narxi" : ""}
                 </p>
                 <p style={{ color: "var(--accent)", fontWeight: 900, fontSize: 26, fontFamily: "var(--font-jakarta)" }}>
-                  {product.price.toLocaleString()} <span style={{ fontSize: 14, fontWeight: 700 }}>so&apos;m</span>
+                  {priceFor(product, currentUser?.type).toLocaleString()} <span style={{ fontSize: 14, fontWeight: 700 }}>so&apos;m</span>
                 </p>
               </div>
-              <p style={{ color: "var(--muted)", fontSize: 12.5, maxWidth: 200, textAlign: "right" }}>
-                Ko&apos;proq kerak bo&apos;lsa, buyurtma oynasida &quot;+&quot; tugmasini bosib quti sonini oshiring
-              </p>
             </div>
 
             {/* Actions */}

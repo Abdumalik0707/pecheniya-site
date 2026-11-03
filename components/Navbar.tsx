@@ -33,6 +33,7 @@ export function Navbar() {
   }, []);
 
   function handleLogout() {
+    fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
     localStorage.removeItem("pecheniya_user");
     setUser(null);
     setDropOpen(false);
@@ -46,9 +47,8 @@ export function Navbar() {
         position: "sticky",
         top: 0,
         zIndex: 50,
-        background: "var(--surface)",
-        borderBottom: "1px solid var(--border)",
-        backdropFilter: "blur(12px)",
+        background: "var(--brand-red)",
+        boxShadow: "0 2px 0 var(--brand-red-deep)",
       }}
     >
       <div
@@ -58,21 +58,21 @@ export function Navbar() {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          height: 64,
+          height: 72,
           padding: "0 16px",
         }}
       >
         {/* Logo */}
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/smag-logo.png" alt="SmaG" style={{ height: 40, width: "auto" }} />
+          <img src="/smag-logo.png" alt="SmaG" style={{ height: 44, width: "auto", borderRadius: 8 }} />
           <span
             style={{
-              fontFamily: "var(--font-jakarta)",
-              fontSize: 17,
-              fontWeight: 900,
-              color: "var(--fg)",
-              letterSpacing: "-0.3px",
+              fontFamily: "var(--font-display)",
+              fontSize: 24,
+              fontWeight: 400,
+              color: "var(--brand-cream)",
+              letterSpacing: "0.02em",
             }}
             className="nav-brand-text"
           >
@@ -82,10 +82,10 @@ export function Navbar() {
 
         {/* Desktop links */}
         <div style={{ display: "flex", alignItems: "center", gap: 28 }} className="nav-desktop-only">
-          <Link href="/#mahsulotlar" style={{ color: "var(--muted)", fontSize: 14.5, fontWeight: 500, textDecoration: "none" }}>
+          <Link href="/#mahsulotlar" style={{ color: "var(--brand-cream)", fontSize: 14, fontWeight: 700, textDecoration: "none", textTransform: "uppercase", letterSpacing: "0.04em" }}>
             {t("nav_products")}
           </Link>
-          <Link href="/#qanday" style={{ color: "var(--muted)", fontSize: 14.5, fontWeight: 500, textDecoration: "none" }}>
+          <Link href="/#qanday" style={{ color: "var(--brand-cream)", fontSize: 14, fontWeight: 700, textDecoration: "none", textTransform: "uppercase", letterSpacing: "0.04em" }}>
             {t("nav_how")}
           </Link>
           <a
@@ -94,13 +94,13 @@ export function Navbar() {
               display: "flex",
               alignItems: "center",
               gap: 6,
-              color: "var(--accent)",
+              color: "var(--brand-yellow)",
               fontSize: 14,
-              fontWeight: 600,
+              fontWeight: 700,
               textDecoration: "none",
             }}
           >
-            <PhoneIcon size={14} color="var(--accent)" /> {OPERATOR.phone}
+            <PhoneIcon size={14} color="var(--brand-yellow)" /> {OPERATOR.phone}
           </a>
         </div>
 
@@ -115,13 +115,13 @@ export function Navbar() {
                 width: 38,
                 height: 38,
                 borderRadius: 10,
-                border: "1px solid var(--border)",
-                background: "var(--surface-2)",
+                border: "1px solid rgba(255,246,234,0.35)",
+                background: "rgba(255,246,234,0.14)",
                 cursor: "pointer",
                 fontSize: 16,
                 display: "grid",
                 placeItems: "center",
-                color: "var(--fg)",
+                color: "var(--brand-cream)",
               }}
               aria-label="Temani almashtirish"
             >
@@ -140,10 +140,10 @@ export function Navbar() {
                     gap: 8,
                     padding: "7px 14px",
                     borderRadius: 20,
-                    border: "1px solid var(--border)",
-                    background: "var(--surface-2)",
+                    border: "1px solid rgba(255,246,234,0.35)",
+                    background: "rgba(255,246,234,0.14)",
                     cursor: "pointer",
-                    color: "var(--fg)",
+                    color: "var(--brand-cream)",
                     fontSize: 14,
                     fontWeight: 600,
                   }}
@@ -152,8 +152,8 @@ export function Navbar() {
                     width: 26,
                     height: 26,
                     borderRadius: "50%",
-                    background: "var(--accent)",
-                    color: "#fff",
+                    background: "var(--brand-yellow)",
+                    color: "var(--brand-choco-deep)",
                     display: "grid",
                     placeItems: "center",
                     fontSize: 13,
@@ -184,6 +184,21 @@ export function Navbar() {
                       <p style={{ fontSize: 13, fontWeight: 700, color: "var(--fg)", margin: 0 }}>{user.name}</p>
                       <p style={{ fontSize: 11, color: "var(--muted)", margin: 0 }}>{user.phone}</p>
                     </div>
+                    <Link
+                      href="/profile"
+                      onClick={() => setDropOpen(false)}
+                      style={{
+                        display: "block",
+                        padding: "8px 12px",
+                        borderRadius: 10,
+                        color: "var(--fg)",
+                        fontSize: 13,
+                        fontWeight: 700,
+                        textDecoration: "none",
+                      }}
+                    >
+                      👤 {t("nav_profile")}
+                    </Link>
                     <button
                       onClick={handleLogout}
                       style={{
@@ -210,12 +225,12 @@ export function Navbar() {
                   href="/auth/login"
                   style={{
                     fontSize: 14,
-                    fontWeight: 600,
-                    color: "var(--muted)",
+                    fontWeight: 700,
+                    color: "var(--brand-cream)",
                     textDecoration: "none",
-                    padding: "8px 16px",
-                    borderRadius: 20,
-                    border: "1px solid var(--border)",
+                    padding: "9px 18px",
+                    borderRadius: 999,
+                    border: "2px solid rgba(255,246,234,0.6)",
                   }}
                 >
                   {t("nav_login")}
@@ -226,11 +241,12 @@ export function Navbar() {
                   style={{
                     fontSize: 14,
                     fontWeight: 700,
-                    background: "var(--accent)",
-                    color: "#fff",
+                    background: "var(--brand-yellow)",
+                    color: "var(--brand-choco-deep)",
                     textDecoration: "none",
-                    padding: "9px 20px",
-                    borderRadius: 20,
+                    padding: "11px 22px",
+                    borderRadius: 999,
+                    boxShadow: "0 4px 0 var(--brand-yellow-deep)",
                   }}
                 >
                   {t("nav_register")}
@@ -249,11 +265,11 @@ export function Navbar() {
             width: 40,
             height: 40,
             borderRadius: 10,
-            border: "1px solid var(--border)",
-            background: "var(--surface-2)",
+            border: "1px solid rgba(255,246,234,0.35)",
+            background: "rgba(255,246,234,0.14)",
             fontSize: 18,
             lineHeight: 1,
-            color: "var(--fg)",
+            color: "var(--brand-cream)",
             cursor: "pointer",
             placeItems: "center",
             padding: 0,
@@ -306,6 +322,16 @@ export function Navbar() {
             user ? (
               <>
                 <div style={{ fontSize: 13, color: "var(--muted)" }}>{user.name} · {user.phone}</div>
+                <Link
+                  href="/profile"
+                  onClick={() => setMobileOpen(false)}
+                  style={{
+                    padding: "12px", borderRadius: 14, background: "var(--brand-yellow)", color: "var(--brand-choco-deep)",
+                    fontSize: 14, fontWeight: 800, textAlign: "center", textDecoration: "none",
+                  }}
+                >
+                  👤 {t("nav_profile")}
+                </Link>
                 <button
                   onClick={handleLogout}
                   style={{

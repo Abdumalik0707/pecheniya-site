@@ -4,20 +4,58 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Navbar } from "@/components/Navbar";
 import { ProductCard } from "@/components/ProductCard";
-import { HeroBanner } from "@/components/HeroBanner";
-import { FeatureStrip } from "@/components/FeatureStrip";
 import { CategoryCircles } from "@/components/CategoryCircles";
 import { BestSellers } from "@/components/BestSellers";
 import { PromoBanners } from "@/components/PromoBanners";
+import { Drip } from "@/components/Drip";
+import { Ribbons } from "@/components/Ribbons";
+import { HeroBanner } from "@/components/HeroBanner";
 import { PRODUCTS, OPERATOR, fetchProducts, Product } from "@/lib/data";
-import { useLanguage } from "@/lib/i18n";
-import { CookieIcon, StarIcon, TagIcon, BoltIcon, SendIcon, CameraIcon, PhoneIcon } from "@/components/Icons";
+import { useLanguage, type TranslationKey } from "@/lib/i18n";
+import {
+  CookieIcon, SendIcon, CameraIcon, PhoneIcon,
+  LeafIcon, ChefIcon, TruckIcon, ShieldIcon, HeartIcon,
+} from "@/components/Icons";
 
 const TYPE_FILTERS: { key: string; label: string; tag: string }[] = [
   { key: "shokoladli", label: "Shokoladli", tag: "shokolad" },
   { key: "kunjutlik", label: "Kunjutlik", tag: "kunjut" },
   { key: "lochira", label: "Lochira seriyasi", tag: "lochira" },
 ];
+
+const MOSAIC = [
+  ["pp001-kunjut-lochira", "Lochira"],
+  ["pp005-sasha-masha-choko", "Sasha-Masha"],
+  ["pp007-vostochny-kunjut-choko", "Kunjut"],
+  ["pp009-yubileynoe-kichik", "Yubileynoe"],
+  ["pp012-selfi-smag-choko", "Selfi"],
+  ["pp014-yabloko", "Olma"],
+  ["pp015-vkusnoe", "Vkusnoe"],
+  ["pp016-chayku", "Chayku"],
+  ["pp017-popkorn", "Popkorn"],
+  ["pp018-toplyonoe-moloko", "Moloko"],
+  ["pp020-essen", "Essen"],
+  ["pp003-kunjut-lochira-choko", "Choko"],
+  ["pp010-yubileynoe-elita", "Elita"],
+  ["pp006-sasha-masha", "Sasha"],
+  ["pp019-toplyonoe-moloko-temny", "Temny"],
+] as const;
+
+const INGREDIENTS: { t: TranslationKey; d: TranslationKey }[] = [
+  { t: "ing_flour_t", d: "ing_flour_d" },
+  { t: "ing_milk_t", d: "ing_milk_d" },
+  { t: "ing_sesame_t", d: "ing_sesame_d" },
+  { t: "ing_choco_t", d: "ing_choco_d" },
+];
+
+function CurlyArrow() {
+  return (
+    <svg className="ing-arrow" viewBox="0 0 54 40" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M2 6c14 0 26 6 32 20 2 4 6 8 14 8" />
+      <path d="M40 27l8 7-9 4" />
+    </svg>
+  );
+}
 
 export default function Home() {
   const { t } = useLanguage();
@@ -47,8 +85,9 @@ export default function Home() {
   })();
 
   const bestSellers = products.filter((p) => p.isPremium || p.isNew).slice(0, 10);
+  const telHref = `tel:${OPERATOR.phone.replace(/\s/g, "")}`;
 
-  function handleCircleSelect(sub: string | null) {
+  function handleCategorySelect(sub: string | null) {
     setSubFilter(sub);
     document.getElementById("mahsulotlar")?.scrollIntoView({ behavior: "smooth" });
   }
@@ -65,354 +104,325 @@ export default function Home() {
     <div style={{ minHeight: "100vh", background: "var(--bg)" }}>
       <Navbar />
 
-      {/* Hero */}
-      <section style={{ maxWidth: 1200, margin: "0 auto", padding: "20px 16px 0" }}>
-        <HeroBanner />
-
-        {/* Quick badge + call CTA under the banner */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, flexWrap: "wrap", margin: "20px 0" }}>
-          <div
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 8,
-              background: "var(--accent-bg)",
-              color: "var(--accent-text)",
-              padding: "6px 16px",
-              borderRadius: 20,
-              fontSize: 13,
-              fontWeight: 600,
-            }}
-          >
-            {t("hero_badge")}
+      {/* ─── HERO ─── */}
+      <section className="hero">
+        <div className="wrap hero-grid">
+          <div>
+            <div className="hero-kicker">
+              <CookieIcon size={16} color="var(--brand-yellow)" /> {t("hero_kicker")}
+            </div>
+            <h1 className="hero-title">
+              <span>{t("hero_big_1")}</span>
+              <span className="yel">{t("hero_big_2")}</span>
+            </h1>
+            <p className="hero-sub">{t("hero_sub")}</p>
+            <div className="hero-actions">
+              <a href="#mahsulotlar" className="btn btn-yellow">
+                {t("bestsellers_viewall").replace(/\s*→\s*$/, "")} <span className="arrow-ico">→</span>
+              </a>
+              <a href={telHref} className="btn btn-ghost-light">
+                <PhoneIcon size={16} color="currentColor" /> {t("hero_cta_call")}
+              </a>
+            </div>
           </div>
-          <a
-            href={`tel:${OPERATOR.phone.replace(/\s/g, "")}`}
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 6,
-              padding: "6px 16px",
-              borderRadius: 20,
-              background: "var(--surface-2)",
-              color: "var(--fg)",
-              fontWeight: 600,
-              fontSize: 13,
-              textDecoration: "none",
-              border: "1px solid var(--border-strong)",
-            }}
-          >
-            <PhoneIcon size={14} color="var(--fg)" /> {OPERATOR.phone}
-          </a>
-        </div>
 
-        {/* Stats */}
-        <div style={{ display: "flex", justifyContent: "center", gap: 40, padding: "8px 0 44px", flexWrap: "wrap" }}>
-          {[
-            { icon: <CookieIcon size={22} color="var(--accent)" />, val: `${products.length}+`, lbl: t("stat_flavors"), bg: "var(--accent-bg)" },
-            { icon: <StarIcon size={22} color="#e6a817" />, val: `${products.filter(p => p.isPremium).length}`, lbl: t("stat_food"), bg: "#fef7e0" },
-            { icon: <TagIcon size={22} color="#2d8cf0" />, val: `${products.filter(p => p.isNew).length}`, lbl: t("stat_organic"), bg: "#e8f2fd" },
-            { icon: <BoltIcon size={22} color="#e67e22" />, val: "60 min", lbl: t("stat_delivery"), bg: "#fef0e0" },
-          ].map((item) => (
-            <div key={item.lbl} style={{ textAlign: "center" }}>
-              <div style={{ width: 44, height: 44, borderRadius: 12, background: item.bg, display: "grid", placeItems: "center", margin: "0 auto 8px" }}>{item.icon}</div>
-              <div style={{ fontFamily: "var(--font-jakarta)", fontSize: 22, fontWeight: 800, color: "var(--fg)" }}>{item.val}</div>
-              <div style={{ color: "var(--muted)", fontSize: 13 }}>{item.lbl}</div>
+          <div className="hero-art" aria-hidden="true">
+            <div className="hero-photo">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/hero/hero-2.png" alt="" />
+            </div>
+            <div className="hero-pack">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/smag-logo.png" alt="" className="hero-pack-logo" />
+              <div className="hero-pack-img">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/products/smag/pp004-lochira-choko.jpg" alt="" />
+              </div>
+              <div className="hero-pack-band">
+                <b>LOCHIRA</b>
+                <small>{t("hero_pack_sub")}<br />choko</small>
+              </div>
+            </div>
+            <div className="hero-cookie c1">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/products/smag/pp008-vostochny-kunjut.jpg" alt="" />
+            </div>
+            <div className="hero-cookie c2">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/products/smag/pp010-yubileynoe-elita.jpg" alt="" />
+            </div>
+            <div className="hero-sticker">
+              <div>
+                <b>60</b>
+                <span>{t("hero_sticker")}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <Drip />
+
+      {/* ─── PHOTO CAROUSEL ─── */}
+      <section className="wrap" style={{ padding: "36px 24px 56px" }}>
+        <HeroBanner />
+      </section>
+
+      <Ribbons />
+
+      {/* ─── RECIPE / INGREDIENTS ─── */}
+      <section className="recipe">
+        <div className="wrap">
+          <h2 className="sec-title" style={{ textAlign: "center" }}>{t("recipe_title")}</h2>
+          <div className="recipe-grid">
+            <div className="recipe-col left">
+              {INGREDIENTS.slice(0, 2).map((i) => (
+                <div key={i.t} className="ing-card">
+                  <h4>{t(i.t)}</h4>
+                  <p>{t(i.d)}</p>
+                  <CurlyArrow />
+                </div>
+              ))}
+            </div>
+            <div className="recipe-center">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/products/smag/pp007-vostochny-kunjut-choko.jpg" alt="SmaG pechene" />
+            </div>
+            <div className="recipe-col right">
+              {INGREDIENTS.slice(2).map((i) => (
+                <div key={i.t} className="ing-card">
+                  <h4>{t(i.t)}</h4>
+                  <p>{t(i.d)}</p>
+                  <CurlyArrow />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── BEST SELLERS ─── */}
+      <section className="wrap" style={{ paddingBottom: 24 }}>
+        <div className="row-head">
+          <h2>{t("bestsellers_title")}.</h2>
+          <a href="#mahsulotlar" className="dot-link">{t("bestsellers_viewall").replace(/\s*→\s*$/, "")}</a>
+        </div>
+        <div className="best-layout">
+          <div style={{ minWidth: 0 }}>
+            <BestSellers products={bestSellers} user={currentUser} isLoggedIn={isLoggedIn} />
+          </div>
+          <div className="wholesale-card">
+            <div className="wc-img">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/products/smag/pp020-essen.jpg" alt="" />
+            </div>
+            <h3>{t("wholesale_card_title")}</h3>
+            <p>{t("wholesale_card_desc")}</p>
+            <a href={telHref} className="btn btn-yellow btn-sm" style={{ alignSelf: "flex-start" }}>
+              {t("promo_wholesale_btn")} <span className="arrow-ico">→</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── STORY ─── */}
+      <section className="wrap">
+        <div className="story">
+          <div className="story-mosaic" aria-hidden="true">
+            <div className="story-mosaic-inner">
+              {[...MOSAIC, ...MOSAIC, ...MOSAIC].map(([id, label], i) => (
+                <div key={i}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={`/products/smag/${id}.jpg`} alt="" loading="lazy" />
+                  <span>{label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="story-panel">
+            <h2>{t("story_title")}</h2>
+            <div className="bar" />
+            <p>{t("story_desc")}</p>
+            <ul className="story-points">
+              <li><i><LeafIcon size={16} color="#ffc72c" /></i>{t("feature_ingredients_title")} — {t("feature_ingredients_desc")}</li>
+              <li><i><ChefIcon size={16} color="#ffc72c" /></i>{t("feature_fresh_title")} — {t("feature_fresh_desc")}</li>
+              <li><i><TruckIcon size={16} color="#ffc72c" /></i>{t("feature_delivery_title")} — {t("feature_delivery_desc")}</li>
+              <li><i><ShieldIcon size={16} color="#ffc72c" /></i>{t("feature_payment_title")} — {t("feature_payment_desc")}</li>
+            </ul>
+            <a href="#mahsulotlar" className="btn btn-yellow" style={{ alignSelf: "flex-start" }}>
+              {t("story_btn")} <span className="arrow-ico">→</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── CATEGORIES ─── */}
+      <section className="wrap" style={{ paddingBottom: 80 }}>
+        <div className="row-head">
+          <h2>{t("cats_title")}.</h2>
+          <a href="#mahsulotlar" className="dot-link">{t("filter_all")}</a>
+        </div>
+        <CategoryCircles onSelect={handleCategorySelect} />
+      </section>
+
+      {/* ─── HOW IT WORKS ─── */}
+      <section id="qanday" className="wrap" style={{ paddingBottom: 80, scrollMarginTop: 90 }}>
+        <div className="how">
+          <div className="how-hero">
+            <h2>{t("how_title")}</h2>
+            <p>{t("how_desc")}</p>
+            <a href="#mahsulotlar" className="btn btn-red">
+              {t("how_cta")} <span className="arrow-ico">→</span>
+            </a>
+          </div>
+          {([
+            [1, "how_1_title", "how_1_desc"],
+            [2, "how_2_title", "how_2_desc"],
+            [3, "how_3_title", "how_3_desc"],
+            [4, "how_4_title", "how_4_desc"],
+          ] as const).map(([step, title, desc]) => (
+            <div key={step} className="how-step">
+              <div className="num">{step}</div>
+              <h3>{t(title)}</h3>
+              <p>{t(desc)}</p>
             </div>
           ))}
         </div>
-
-        <FeatureStrip />
       </section>
 
-      {/* Shop by category */}
-      <section style={{ maxWidth: 1200, margin: "0 auto", padding: "48px 24px 8px" }}>
-        <div style={{ textAlign: "center", marginBottom: 28 }}>
-          <p style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--muted)", marginBottom: 8 }}>
-            {t("category_section_label")}
-          </p>
-          <h2 style={{ fontFamily: "var(--font-jakarta)", fontSize: "clamp(20px, 3vw, 30px)", fontWeight: 800, color: "var(--fg)" }}>
-            {t("category_section_title")}
-          </h2>
-        </div>
-        <CategoryCircles onSelect={handleCircleSelect} />
-      </section>
-
-      {/* Best sellers */}
-      <section style={{ maxWidth: 1200, margin: "0 auto", padding: "48px 24px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
-          <div>
-            <p style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--muted)", marginBottom: 8 }}>
-              {t("bestsellers_label")}
-            </p>
-            <h2 style={{ fontFamily: "var(--font-jakarta)", fontSize: "clamp(20px, 3vw, 30px)", fontWeight: 800, color: "var(--fg)" }}>
-              {t("bestsellers_title")}
-            </h2>
-          </div>
-          <a href="#mahsulotlar" style={{ color: "var(--accent)", fontWeight: 700, fontSize: 14, textDecoration: "none" }}>
-            {t("bestsellers_viewall")}
-          </a>
-        </div>
-        <BestSellers products={bestSellers} user={currentUser} isLoggedIn={isLoggedIn} />
-      </section>
-
-      {/* How it works */}
-      <section id="qanday" style={{ background: "var(--surface)", borderTop: "1px solid var(--border)", borderBottom: "1px solid var(--border)", padding: "56px 24px" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <h2 style={{ fontFamily: "var(--font-jakarta)", fontSize: "clamp(20px, 3vw, 30px)", fontWeight: 800, textAlign: "center", color: "var(--fg)", marginBottom: 36 }}>
-            {t("how_title")}
-          </h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 20 }}>
-            {[
-              [1, t("how_1_title"), t("how_1_desc")],
-              [2, t("how_2_title"), t("how_2_desc")],
-              [3, t("how_3_title"), t("how_3_desc")],
-              [4, t("how_4_title"), t("how_4_desc")],
-            ].map(([step, title, desc]) => (
-              <div key={title as string} style={{ padding: "22px", borderRadius: 18, background: "var(--bg-2)", border: "1px solid var(--border)", textAlign: "center" }}>
-                <div style={{ width: 40, height: 40, borderRadius: "50%", background: "var(--accent)", color: "#fff", fontFamily: "var(--font-jakarta)", fontSize: 16, fontWeight: 800, display: "grid", placeItems: "center", margin: "0 auto 12px" }}>{step}</div>
-                <h3 style={{ fontFamily: "var(--font-jakarta)", fontSize: 15, fontWeight: 700, color: "var(--fg)", marginBottom: 6 }}>{title}</h3>
-                <p style={{ color: "var(--muted)", fontSize: 13, lineHeight: 1.5 }}>{desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Products */}
-      <section id="mahsulotlar" style={{ maxWidth: 1200, margin: "0 auto", padding: "60px 24px" }}>
-        <div style={{ textAlign: "center", marginBottom: 36 }}>
-          <p style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--muted)", marginBottom: 8 }}>
-            {t("catalog_label")}
-          </p>
-          <h2 style={{ fontFamily: "var(--font-jakarta)", fontSize: "clamp(22px, 3.5vw, 36px)", fontWeight: 800, color: "var(--fg)", marginBottom: 10 }}>
-            {t("catalog_title")}
-          </h2>
-          <p style={{ color: "var(--muted)", fontSize: 15 }}>
-            {t("catalog_desc")}
-          </p>
+      {/* ─── CATALOG ─── */}
+      <section id="mahsulotlar" className="wrap" style={{ paddingBottom: 72, scrollMarginTop: 90 }}>
+        <div style={{ textAlign: "center", marginBottom: 30 }}>
+          <h2 className="sec-title" style={{ marginBottom: 10 }}>{t("catalog_title")}</h2>
+          <p style={{ color: "var(--muted)", fontSize: 15 }}>{t("catalog_desc")}</p>
         </div>
 
         {/* Mobile: "Turini tanlash" toggle */}
         <button
-          className="type-filter-toggle-mobile"
+          className="type-filter-toggle-mobile pill"
           onClick={() => setTypeFilterOpen(!typeFilterOpen)}
-          style={{
-            display: "none",
-            width: "100%",
-            alignItems: "center",
-            justifyContent: "space-between",
-            padding: "12px 16px",
-            borderRadius: 14,
-            border: "1px solid var(--border-strong)",
-            background: "var(--surface)",
-            color: "var(--fg)",
-            fontWeight: 700,
-            fontSize: 14,
-            marginBottom: 14,
-            cursor: "pointer",
-          }}
+          style={{ display: "none", width: "100%", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}
         >
-          <span style={{ display: "flex", alignItems: "center", gap: 6 }}><CookieIcon size={16} color="var(--accent)" /> Turini tanlash{subFilter ? `: ${TYPE_FILTERS.find((f) => f.key === subFilter)?.label ?? ""}` : ""}</span>
+          <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <CookieIcon size={16} color="var(--accent)" /> Turini tanlash
+            {subFilter ? `: ${TYPE_FILTERS.find((f) => f.key === subFilter)?.label ?? subFilter}` : ""}
+          </span>
           <span>{typeFilterOpen ? "▲" : "▼"}</span>
         </button>
 
-        {/* Type pills: Shokoladli / Kunjutlik / Lochira seriyasi */}
         <div
           className={`pill-row type-filter-row ${typeFilterOpen ? "is-open" : ""}`}
-          style={{ display: "flex", gap: 8, marginBottom: 36, overflowX: "auto", paddingBottom: 6, scrollbarWidth: "none" }}
+          style={{ display: "flex", gap: 10, marginBottom: 32, overflowX: "auto", padding: "4px 2px 8px", scrollbarWidth: "none", justifyContent: "center" }}
         >
-          <button
-            onClick={() => setSubFilter(null)}
-            style={{
-              flexShrink: 0,
-              padding: "7px 16px",
-              borderRadius: 16,
-              border: `1px solid ${subFilter === null ? "var(--accent)" : "var(--border)"}`,
-              background: subFilter === null ? "var(--accent-bg)" : "transparent",
-              color: subFilter === null ? "var(--accent-text)" : "var(--muted)",
-              fontWeight: 600,
-              fontSize: 12.5,
-              cursor: "pointer",
-              whiteSpace: "nowrap",
-            }}
-          >
+          <button onClick={() => setSubFilter(null)} className={`pill ${subFilter === null ? "is-active" : ""}`}>
             {t("filter_all")}
           </button>
           {TYPE_FILTERS.map(({ key, label }) => (
-            <button
-              key={key}
-              onClick={() => setSubFilter(key)}
-              style={{
-                flexShrink: 0,
-                padding: "7px 16px",
-                borderRadius: 16,
-                border: `1px solid ${subFilter === key ? "var(--accent)" : "var(--border)"}`,
-                background: subFilter === key ? "var(--accent-bg)" : "transparent",
-                color: subFilter === key ? "var(--accent-text)" : "var(--muted)",
-                fontWeight: 600,
-                fontSize: 12.5,
-                cursor: "pointer",
-                whiteSpace: "nowrap",
-              }}
-            >
+            <button key={key} onClick={() => setSubFilter(key)} className={`pill ${subFilter === key ? "is-active" : ""}`}>
               {label}
             </button>
           ))}
+          {subFilter && !TYPE_FILTERS.some((f) => f.key === subFilter) && (
+            <button className="pill is-active" onClick={() => setSubFilter(null)}>
+              {subFilter} ✕
+            </button>
+          )}
         </div>
 
-        {/* Grid */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(230px, 1fr))", gap: 18 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 20 }}>
           {filtered.map((p) => (
             <ProductCard key={p.id} product={p} user={currentUser} isLoggedIn={isLoggedIn} />
           ))}
         </div>
       </section>
 
-      {/* Promo banners */}
-      <section style={{ maxWidth: 1200, margin: "0 auto", padding: "16px 24px 48px" }}>
+      {/* ─── PROMOS ─── */}
+      <section className="wrap" style={{ paddingBottom: 110 }}>
         <PromoBanners />
       </section>
 
-      {/* Footer */}
-      <footer style={{ background: "var(--bg-2)", borderTop: "1px solid var(--border)", padding: "48px 24px 0" }}>
-        <div
-          style={{
-            maxWidth: 1200,
-            margin: "0 auto",
-            display: "grid",
-            gridTemplateColumns: "1.4fr 1fr 1fr 1.3fr",
-            gap: 32,
-            paddingBottom: 36,
-          }}
-          className="footer-grid"
-        >
-          {/* Brand */}
-          <div>
-            <div style={{ fontFamily: "var(--font-jakarta)", fontSize: 18, fontWeight: 900, color: "var(--fg)", marginBottom: 10, display: "flex", alignItems: "center", gap: 8 }}>
-              <CookieIcon size={20} color="var(--accent)" /> PECHENIYA
-            </div>
-            <p style={{ color: "var(--muted)", fontSize: 13, lineHeight: 1.6, marginBottom: 16, maxWidth: 260 }}>
-              {t("footer_about_desc")}
-            </p>
-            <div style={{ display: "flex", gap: 10 }}>
-              <a
-                href={OPERATOR.telegramUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  width: 34, height: 34, borderRadius: "50%", background: "var(--surface-2)",
-                  border: "1px solid var(--border)", display: "grid", placeItems: "center", fontSize: 14,
-                  textDecoration: "none",
-                }}
-                aria-label="Telegram"
-                title={OPERATOR.telegram}
-              >
-                <SendIcon size={14} color="var(--muted)" />
-              </a>
-              <span
-                style={{
-                  width: 34, height: 34, borderRadius: "50%", background: "var(--surface-2)",
-                  border: "1px solid var(--border)", display: "grid", placeItems: "center",
-                }}
-                aria-label="Instagram"
-                title="Instagram"
-              >
-                <CameraIcon size={14} color="var(--muted)" />
-              </span>
-            </div>
+      {/* ─── NEWSLETTER ─── */}
+      <section className="news">
+        <div className="news-inner">
+          <div className="news-cookie" aria-hidden="true">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/products/smag/pp009-yubileynoe-kichik.jpg" alt="" />
           </div>
-
-          {/* Quick links */}
-          <div>
-            <h4 style={{ fontSize: 13, fontWeight: 800, color: "var(--fg)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 16 }}>
-              {t("footer_quicklinks")}
-            </h4>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              <Link href="/" style={footerLinkStyle}>{t("catalog_label")}</Link>
-              <a href="#mahsulotlar" style={footerLinkStyle}>{t("nav_products")}</a>
-              <a href="#qanday" style={footerLinkStyle}>{t("nav_how")}</a>
-              <Link href="/auth/login" style={footerLinkStyle}>{t("nav_login")}</Link>
-            </div>
-          </div>
-
-          {/* Customer care */}
-          <div>
-            <h4 style={{ fontSize: 13, fontWeight: 800, color: "var(--fg)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 16 }}>
-              {t("footer_customercare")}
-            </h4>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              <a href={`tel:${OPERATOR.phone.replace(/\s/g, "")}`} style={footerLinkStyle}>{t("footer_link_contact")}</a>
-              <span style={footerLinkStyle}>{t("footer_link_about")}</span>
-              <span style={footerLinkStyle}>{t("footer_link_faq")}</span>
-              <span style={footerLinkStyle}>{t("footer_link_delivery")}</span>
-              <span style={footerLinkStyle}>{t("footer_link_returns")}</span>
-            </div>
-          </div>
-
-          {/* Newsletter */}
-          <div>
-            <h4 style={{ fontSize: 13, fontWeight: 800, color: "var(--fg)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 16 }}>
-              {t("footer_newsletter")}
-            </h4>
-            <p style={{ color: "var(--muted)", fontSize: 13, lineHeight: 1.6, marginBottom: 14 }}>
-              {t("footer_newsletter_desc")}
-            </p>
-            <form
-              onSubmit={(e) => e.preventDefault()}
-              style={{ display: "flex", gap: 8 }}
-            >
-              <input
-                type="email"
-                placeholder={t("footer_newsletter_ph")}
-                style={{
-                  flex: 1, minWidth: 0, height: 42, borderRadius: 12, border: "1px solid var(--border-strong)",
-                  background: "var(--surface)", padding: "0 14px", fontSize: 13, color: "var(--fg)", outline: "none",
-                }}
-              />
-              <button
-                type="submit"
-                style={{
-                  padding: "0 18px", borderRadius: 12, border: "none", background: "var(--accent)",
-                  color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer", whiteSpace: "nowrap",
-                }}
-              >
-                {t("footer_subscribe")}
-              </button>
-            </form>
-          </div>
+          <h3>{t("news_title")}</h3>
+          <form onSubmit={(e) => e.preventDefault()}>
+            <input type="email" placeholder={t("footer_newsletter_ph")} aria-label={t("footer_newsletter_ph")} />
+            <button type="submit" className="btn btn-yellow btn-sm">{t("footer_subscribe")}</button>
+          </form>
         </div>
+      </section>
 
-        {/* Bottom bar */}
-        <div
-          style={{
-            maxWidth: 1200,
-            margin: "0 auto",
-            borderTop: "1px solid var(--border)",
-            padding: "18px 0",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            flexWrap: "wrap",
-            gap: 12,
-          }}
-        >
-          <p style={{ color: "var(--muted)", fontSize: 12.5 }}>
-            © 2026 {OPERATOR.name} · {OPERATOR.website}
-          </p>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ color: "var(--muted)", fontSize: 11.5 }}>{t("footer_payment")}:</span>
-            {["Payme", "Click", "Uzcard", "Humo"].map((p) => (
-              <span
-                key={p}
-                style={{
-                  fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 8,
-                  background: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--muted)",
-                }}
-              >
-                {p}
-              </span>
-            ))}
+      {/* ─── FOOTER ─── */}
+      <footer className="footer">
+        <div className="wrap">
+          <div className="footer-grid">
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/smag-logo.png" alt="SmaG" style={{ height: 46, width: "auto", borderRadius: 8 }} />
+                <span className="display" style={{ fontSize: 26 }}>PECHENIYA</span>
+              </div>
+              <p style={{ fontSize: 14, lineHeight: 1.6, opacity: 0.88, marginBottom: 18, maxWidth: 300 }}>
+                {t("footer_about_desc")}
+              </p>
+              <div style={{ display: "flex", gap: 10 }}>
+                <a href={OPERATOR.telegramUrl} target="_blank" rel="noopener noreferrer" className="footer-social" aria-label="Telegram" title={OPERATOR.telegram}>
+                  <SendIcon size={16} color="#fff6ea" />
+                </a>
+                <span className="footer-social" aria-label="Instagram" title="Instagram">
+                  <CameraIcon size={16} color="#fff6ea" />
+                </span>
+                <a href={telHref} className="footer-social" aria-label="Telefon" title={OPERATOR.phone}>
+                  <PhoneIcon size={16} color="#fff6ea" />
+                </a>
+              </div>
+            </div>
+
+            <div>
+              <h4>{t("footer_quicklinks")}</h4>
+              <div className="footer-links">
+                <Link href="/">{t("catalog_label")}</Link>
+                <a href="#mahsulotlar">{t("nav_products")}</a>
+                <a href="#qanday">{t("nav_how")}</a>
+                <Link href="/auth/login">{t("nav_login")}</Link>
+              </div>
+            </div>
+
+            <div>
+              <h4>{t("footer_customercare")}</h4>
+              <div className="footer-links">
+                <a href={telHref}>{t("footer_link_contact")}</a>
+                <span>{t("footer_link_about")}</span>
+                <span>{t("footer_link_faq")}</span>
+                <span>{t("footer_link_delivery")}</span>
+                <span>{t("footer_link_returns")}</span>
+              </div>
+            </div>
+
+            <div>
+              <h4>{t("operator_contact")}</h4>
+              <div className="footer-links">
+                <a href={telHref} style={{ fontWeight: 700, fontSize: 17 }}>{OPERATOR.phone}</a>
+                <a href={OPERATOR.telegramUrl} target="_blank" rel="noopener noreferrer">{OPERATOR.telegram}</a>
+                <span style={{ lineHeight: 1.5 }}>{OPERATOR.address}</span>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                  <HeartIcon size={14} color="#ffc72c" /> {t("feature_love_desc")}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="footer-bottom">
+            <p>© 2026 {OPERATOR.name} · {OPERATOR.website}</p>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+              <span style={{ opacity: 0.85, fontSize: 12 }}>{t("footer_payment")}:</span>
+              {["Payme", "Click", "Uzcard", "Humo"].map((p) => (
+                <span key={p} className="pay-chip">{p}</span>
+              ))}
+            </div>
           </div>
         </div>
       </footer>
@@ -422,21 +432,9 @@ export default function Home() {
         @media (max-width: 700px) {
           .type-filter-toggle-mobile { display: flex !important; }
           .type-filter-row { display: none !important; }
-          .type-filter-row.is-open { display: flex !important; flex-wrap: wrap; }
-        }
-        @media (max-width: 860px) {
-          .footer-grid { grid-template-columns: 1fr 1fr !important; }
-        }
-        @media (max-width: 520px) {
-          .footer-grid { grid-template-columns: 1fr !important; }
+          .type-filter-row.is-open { display: flex !important; flex-wrap: wrap; justify-content: flex-start !important; }
         }
       `}</style>
     </div>
   );
 }
-
-const footerLinkStyle: React.CSSProperties = {
-  color: "var(--muted)",
-  fontSize: 13,
-  textDecoration: "none",
-};

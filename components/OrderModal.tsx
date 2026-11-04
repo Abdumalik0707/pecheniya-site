@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { PAYMENT_CARD, type Product } from "@/lib/data";
 import { priceFor } from "@/lib/pricing";
 import { useLanguage } from "@/lib/i18n";
+import { CheckCircleIcon, CloseIcon, MapPinIcon, CashIcon, CardIcon, CheckIcon, ReceiptIcon, AlertIcon, ArrowRightIcon, ArrowLeftIcon, CopyIcon, UserIcon, StoreIcon } from "./Icons";
 
 const LocationMap = dynamic(() => import("./LocationMap").then((m) => m.LocationMap), {
   ssr: false,
@@ -156,7 +157,7 @@ export function OrderModal({ product, onClose, user }: Props) {
 
         {step === "done" ? (
           <div style={{ textAlign: "center", padding: "20px 0" }}>
-            <div style={{ fontSize: 56, marginBottom: 16 }}>✅</div>
+            <div className="ok-badge"><CheckCircleIcon size={44} /></div>
             <h2 style={{ fontFamily: "var(--font-jakarta)", fontSize: 22, fontWeight: 800, color: "var(--fg)", marginBottom: 8 }}>
               {t("om_done_title")}
             </h2>
@@ -214,8 +215,9 @@ export function OrderModal({ product, onClose, user }: Props) {
                   display: "grid",
                   placeItems: "center",
                 }}
+                aria-label="Yopish"
               >
-                ✕
+                <CloseIcon size={16} />
               </button>
             </div>
 
@@ -361,7 +363,7 @@ export function OrderModal({ product, onClose, user }: Props) {
                       color: "var(--muted)",
                     }}
                   >
-                    📍 {location.address.slice(0, 80)}...
+                    <MapPinIcon size={15} color="var(--accent)" /> {location.address.slice(0, 80)}...
                   </div>
                 )}
 
@@ -389,9 +391,9 @@ export function OrderModal({ product, onClose, user }: Props) {
                   <label style={labelStyle}>{t("pay_title")}</label>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                     {([
-                      ["cash", t("pay_cash"), t("pay_cash_desc"), "💵"],
-                      ["card", t("pay_card"), t("pay_card_desc"), "💳"],
-                    ] as const).map(([val, lbl, desc, icon]) => {
+                      ["cash", t("pay_cash"), t("pay_cash_desc"), CashIcon],
+                      ["card", t("pay_card"), t("pay_card_desc"), CardIcon],
+                    ] as const).map(([val, lbl, desc, Icon]) => {
                       const active = paymentMethod === val;
                       return (
                         <button
@@ -411,7 +413,7 @@ export function OrderModal({ product, onClose, user }: Props) {
                             gap: 4,
                           }}
                         >
-                          <span style={{ fontSize: 22 }}>{icon}</span>
+                          <span className="pay-ico" style={{ background: active ? "var(--brand-red)" : "var(--surface)", color: active ? "#fff" : "var(--accent)" }}><Icon size={20} /></span>
                           <span style={{ fontWeight: 800, fontSize: 15, color: active ? "var(--accent-text)" : "var(--fg)" }}>{lbl}</span>
                           <span style={{ fontSize: 12, color: "var(--muted)", lineHeight: 1.35 }}>{desc}</span>
                         </button>
@@ -449,7 +451,7 @@ export function OrderModal({ product, onClose, user }: Props) {
                           onClick={copyCard}
                           style={{ padding: "6px 12px", borderRadius: 999, border: "1px solid rgba(255,246,234,0.5)", background: "rgba(255,246,234,0.15)", color: "#fff6ea", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
                         >
-                          {copied ? t("pay_copied") : t("pay_copy")}
+                          {copied ? <CheckIcon size={13} strokeWidth={3} /> : <CopyIcon size={13} />} {copied ? t("pay_copied") : t("pay_copy")}
                         </button>
                       </div>
                       <div style={{ display: "flex", justifyContent: "space-between", marginTop: 14, fontSize: 12.5, gap: 10 }}>
@@ -494,19 +496,19 @@ export function OrderModal({ product, onClose, user }: Props) {
                           <>
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img src={receipt.preview} alt={t("pay_receipt")} style={{ maxHeight: 160, maxWidth: "100%", borderRadius: 10, objectFit: "contain" }} />
-                            <span style={{ fontSize: 13, color: "var(--green)", fontWeight: 700 }}>✓ {t("pay_receipt_done")}</span>
+                            <span style={{ fontSize: 13, color: "var(--green)", fontWeight: 700 }}><CheckIcon size={14} strokeWidth={3} /> {t("pay_receipt_done")}</span>
                             <span style={{ fontSize: 11.5, color: "var(--muted)" }}>{t("pay_receipt_change")}</span>
                           </>
                         ) : (
                           <>
-                            <span style={{ fontSize: 28 }}>🧾</span>
+                            <span className="pay-ico" style={{ width: 52, height: 52, color: "var(--accent)", background: "var(--surface)" }}><ReceiptIcon size={24} /></span>
                             <span style={{ fontSize: 14, fontWeight: 700, color: "var(--fg)" }}>{t("pay_receipt_cta")}</span>
                             <span style={{ fontSize: 11.5, color: "var(--muted)" }}>JPG, PNG, WEBP</span>
                           </>
                         )}
                       </label>
                       {receiptError && (
-                        <p style={{ color: "var(--red)", fontSize: 12.5, marginTop: 6 }}>⚠️ {receiptError}</p>
+                        <p style={{ color: "var(--red)", fontSize: 12.5, marginTop: 6 }}><AlertIcon size={14} /> {receiptError}</p>
                       )}
                     </div>
                   </>
@@ -561,7 +563,7 @@ export function OrderModal({ product, onClose, user }: Props) {
 
                 {error && (
                   <div style={{ padding: "10px 14px", borderRadius: 10, background: "rgba(220,38,38,0.1)", border: "1px solid rgba(220,38,38,0.3)", color: "var(--red)", fontSize: 13 }}>
-                    ⚠️ {error}
+                    <AlertIcon size={15} /> {error}
                   </div>
                 )}
 

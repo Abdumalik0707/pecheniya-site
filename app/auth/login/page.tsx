@@ -4,6 +4,7 @@ import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Navbar } from "@/components/Navbar";
+import { CookieIcon, AlertIcon, ArrowRightIcon } from "@/components/Icons";
 
 export default function LoginPage() {
   return (
@@ -76,7 +77,7 @@ function LoginForm() {
         <div style={{ width: "100%", maxWidth: 400 }}>
           {/* Header */}
           <div style={{ textAlign: "center", marginBottom: 32 }}>
-            <div style={{ fontSize: 48, marginBottom: 12 }}>🍪</div>
+            <div className="auth-badge"><CookieIcon size={34} /></div>
             <h1
               style={{
                 fontFamily: "var(--font-jakarta)",
@@ -147,7 +148,7 @@ function LoginForm() {
                     fontWeight: 500,
                   }}
                 >
-                  ⚠️ {error}
+                  <AlertIcon size={15} /> {error}
                 </div>
               )}
 
@@ -177,7 +178,7 @@ function LoginForm() {
                     Tekshirilmoqda...
                   </>
                 ) : (
-                  "Kirish →"
+                  <>Kirish <ArrowRightIcon size={17} /></>
                 )}
               </button>
 

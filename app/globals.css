@@ -1242,3 +1242,32 @@ body {
   .ribbon-track, .hero-pack, .hero-cookie, .recipe-center img, .recipe-center::before { animation: none !important; }
   html { scroll-behavior: auto; }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   Icon helpers
+   ═══════════════════════════════════════════════════════════ */
+
+.icon-spin { animation: spin 0.8s linear infinite; }
+.rot-180 { transform: rotate(180deg); }
+
+/* round tinted badge for a big status icon (success screens) */
+.ok-badge {
+  width: 84px; height: 84px; margin: 0 auto 16px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: rgba(22, 163, 74, 0.12); color: var(--green);
+}
+
+/* logo-like badge above auth forms */
+.auth-badge {
+  width: 68px; height: 68px; margin: 0 auto 14px; border-radius: 22px;
+  display: grid; place-items: center; transform: rotate(-6deg);
+  background: var(--brand-red); color: var(--brand-cream);
+  box-shadow: 0 6px 0 var(--brand-red-deep);
+}
+
+/* icon tile inside payment options / upload box */
+.pay-ico {
+  width: 42px; height: 42px; border-radius: 14px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border);
+}

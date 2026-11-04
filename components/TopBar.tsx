@@ -1,11 +1,16 @@
 "use client";
 
 import { useLanguage } from "@/lib/i18n";
+import { TruckIcon, GiftIcon, ChefIcon } from "./Icons";
 
 export function TopBar() {
   const { t } = useLanguage();
 
-  const items = [t("topbar_shipping"), t("topbar_promo"), t("topbar_fresh")];
+  const items = [
+    { Icon: TruckIcon, text: t("topbar_shipping") },
+    { Icon: GiftIcon, text: t("topbar_promo") },
+    { Icon: ChefIcon, text: t("topbar_fresh") },
+  ];
 
   return (
     <div
@@ -30,12 +35,15 @@ export function TopBar() {
         }}
       >
         {items.map((item, i) => (
-          <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
-            {i > 0 && <span style={{ opacity: 0.5 }}>|</span>}
-            {item}
+          <span key={i} className={i > 0 ? "tb-extra" : undefined} style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+            {i > 0 && <span aria-hidden="true" style={{ opacity: 0.35, margin: "0 6px" }}>•</span>}
+            <item.Icon size={15} color="var(--brand-yellow)" />
+            {item.text}
           </span>
         ))}
       </div>
+      {/* phones: keep only the first message so the bar stays one line */}
+      <style>{`@media (max-width: 700px) { .tb-extra { display: none !important; } }`}</style>
     </div>
   );
 }

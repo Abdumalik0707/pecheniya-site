@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useLanguage, type Lang } from "@/lib/i18n";
+import { ChevronDownIcon } from "./Icons";
 
 const LABELS: Record<Lang, string> = { uz: "UZ", ru: "RU", en: "EN" };
 
@@ -57,7 +58,7 @@ export function LanguageSwitcher() {
       >
         <FlagIcon lang={lang} />
         {LABELS[lang]}
-        <span style={{ fontSize: 9, opacity: 0.6 }}>▼</span>
+        <ChevronDownIcon size={14} />
       </button>
 
       {open && (

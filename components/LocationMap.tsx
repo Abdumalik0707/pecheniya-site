@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { SearchIcon, LoaderIcon, MapPinIcon } from "./Icons";
 
 interface Props {
   onSelect: (lat: number, lng: number, address: string) => void;
@@ -158,7 +159,7 @@ export function LocationMap({ onSelect, selected }: Props) {
           }}
         />
         <span style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", fontSize: 15, color: "var(--muted)" }}>
-          {searching ? "⏳" : "🔍"}
+          {searching ? <LoaderIcon size={17} /> : <SearchIcon size={17} />}
         </span>
 
         {showResults && results.length > 0 && (
@@ -195,7 +196,7 @@ export function LocationMap({ onSelect, selected }: Props) {
                   lineHeight: 1.4,
                 }}
               >
-                📍 {r.display_name}
+                <MapPinIcon size={14} color="var(--accent)" /> {r.display_name}
               </button>
             ))}
           </div>

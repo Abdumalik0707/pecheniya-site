@@ -12,10 +12,7 @@ import { Ribbons } from "@/components/Ribbons";
 import { HeroBanner } from "@/components/HeroBanner";
 import { PRODUCTS, OPERATOR, fetchProducts, Product } from "@/lib/data";
 import { useLanguage, type TranslationKey } from "@/lib/i18n";
-import {
-  CookieIcon, SendIcon, CameraIcon, PhoneIcon,
-  LeafIcon, ChefIcon, TruckIcon, ShieldIcon, HeartIcon,
-} from "@/components/Icons";
+import { CookieIcon, SendIcon, CameraIcon, PhoneIcon, LeafIcon, ChefIcon, TruckIcon, ShieldIcon, HeartIcon, ArrowRightIcon, ChevronDownIcon, CloseIcon } from "@/components/Icons";
 
 const TYPE_FILTERS: { key: string; label: string; tag: string }[] = [
   { key: "shokoladli", label: "Shokoladli", tag: "shokolad" },
@@ -118,7 +115,7 @@ export default function Home() {
             <p className="hero-sub">{t("hero_sub")}</p>
             <div className="hero-actions">
               <a href="#mahsulotlar" className="btn btn-yellow">
-                {t("bestsellers_viewall").replace(/\s*→\s*$/, "")} <span className="arrow-ico">→</span>
+                {t("bestsellers_viewall").replace(/\s*→\s*$/, "")} <ArrowRightIcon size={16} className="arrow-ico" />
               </a>
               <a href={telHref} className="btn btn-ghost-light">
                 <PhoneIcon size={16} color="currentColor" /> {t("hero_cta_call")}
@@ -218,7 +215,7 @@ export default function Home() {
             <h3>{t("wholesale_card_title")}</h3>
             <p>{t("wholesale_card_desc")}</p>
             <a href={telHref} className="btn btn-yellow btn-sm" style={{ alignSelf: "flex-start" }}>
-              {t("promo_wholesale_btn")} <span className="arrow-ico">→</span>
+              {t("promo_wholesale_btn")} <ArrowRightIcon size={16} className="arrow-ico" />
             </a>
           </div>
         </div>
@@ -249,7 +246,7 @@ export default function Home() {
               <li><i><ShieldIcon size={16} color="#ffc72c" /></i>{t("feature_payment_title")} — {t("feature_payment_desc")}</li>
             </ul>
             <a href="#mahsulotlar" className="btn btn-yellow" style={{ alignSelf: "flex-start" }}>
-              {t("story_btn")} <span className="arrow-ico">→</span>
+              {t("story_btn")} <ArrowRightIcon size={16} className="arrow-ico" />
             </a>
           </div>
         </div>
@@ -271,7 +268,7 @@ export default function Home() {
             <h2>{t("how_title")}</h2>
             <p>{t("how_desc")}</p>
             <a href="#mahsulotlar" className="btn btn-red">
-              {t("how_cta")} <span className="arrow-ico">→</span>
+              {t("how_cta")} <ArrowRightIcon size={16} className="arrow-ico" />
             </a>
           </div>
           {([
@@ -306,7 +303,7 @@ export default function Home() {
             <CookieIcon size={16} color="var(--accent)" /> Turini tanlash
             {subFilter ? `: ${TYPE_FILTERS.find((f) => f.key === subFilter)?.label ?? subFilter}` : ""}
           </span>
-          <span>{typeFilterOpen ? "▲" : "▼"}</span>
+          <ChevronDownIcon size={18} className={typeFilterOpen ? "rot-180" : ""} />
         </button>
 
         <div
@@ -323,7 +320,7 @@ export default function Home() {
           ))}
           {subFilter && !TYPE_FILTERS.some((f) => f.key === subFilter) && (
             <button className="pill is-active" onClick={() => setSubFilter(null)}>
-              {subFilter} ✕
+              {subFilter} <CloseIcon size={14} />
             </button>
           )}
         </div>

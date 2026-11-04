@@ -7,6 +7,7 @@ import { getProductById, fetchProductById, OPERATOR, Product } from "@/lib/data"
 import { OrderModal } from "@/components/OrderModal";
 import { priceFor } from "@/lib/pricing";
 import { Navbar } from "@/components/Navbar";
+import { ZoomIcon, BoxIcon, CartIcon, PhoneIcon, BoltIcon, CloseIcon, ArrowLeftIcon } from "@/components/Icons";
 
 export default function ProductPage() {
   const { id } = useParams<{ id: string }>();
@@ -95,7 +96,7 @@ export default function ProductPage() {
             className="btn btn-red btn-sm"
             style={{ fontSize: 14, padding: "10px 20px" }}
           >
-            <span aria-hidden="true" style={{ fontSize: 18, lineHeight: 1 }}>←</span> Orqaga qaytish
+            <ArrowLeftIcon size={17} /> Orqaga qaytish
           </button>
         </div>
 
@@ -144,7 +145,7 @@ export default function ProductPage() {
                   gap: 4,
                 }}
               >
-                🔍 Kattalashtirish
+                <ZoomIcon size={14} /> Kattalashtirish
               </span>
             </button>
 
@@ -250,8 +251,8 @@ export default function ProductPage() {
               }}
             >
               {[
-                ["📦 Quti og'irligi", product.weight],
-                ["⚖️ 1 dona og'irligi", product.netWeight],
+                ["Quti og'irligi", product.weight],
+                ["1 dona og'irligi", product.netWeight],
               ].map(([lbl, val]) => (
                 <div
                   key={lbl}
@@ -286,7 +287,7 @@ export default function ProductPage() {
             >
               <div>
                 <p style={{ color: "var(--muted)", fontSize: 12, marginBottom: 4 }}>
-                  📦 {product.weight} quti narxi{currentUser?.type === "shop" ? " · do'kon narxi" : ""}
+                  <BoxIcon size={14} /> {product.weight} quti narxi{currentUser?.type === "shop" ? " · do'kon narxi" : ""}
                 </p>
                 <p style={{ color: "var(--accent)", fontWeight: 900, fontSize: 26, fontFamily: "var(--font-jakarta)" }}>
                   {priceFor(product, currentUser?.type).toLocaleString()} <span style={{ fontSize: 14, fontWeight: 700 }}>so&apos;m</span>
@@ -314,7 +315,7 @@ export default function ProductPage() {
                   cursor: "pointer",
                 }}
               >
-                🛒 Buyurtma berish
+                <CartIcon size={19} /> Buyurtma berish
               </button>
               <a
                 href={`tel:${OPERATOR.phone.replace(/\s/g, "")}`}
@@ -335,7 +336,7 @@ export default function ProductPage() {
                   gap: 6,
                 }}
               >
-                📞 Operator
+                <PhoneIcon size={16} /> Operator
               </a>
             </div>
 
@@ -354,7 +355,7 @@ export default function ProductPage() {
                 alignItems: "center",
               }}
             >
-              ⚡ Toshkent bo&apos;ylab 60 daqiqada yetkazib beramiz
+              <BoltIcon size={16} color="var(--brand-yellow-deep)" /> Toshkent bo&apos;ylab 60 daqiqada yetkazib beramiz
             </div>
           </div>
         </div>
@@ -402,7 +403,7 @@ export default function ProductPage() {
               placeItems: "center",
             }}
           >
-            ✕
+            <CloseIcon size={20} />
           </button>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img

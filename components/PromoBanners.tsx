@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { OPERATOR } from "@/lib/data";
 import { useLanguage } from "@/lib/i18n";
+import { ArrowRightIcon } from "./Icons";
 
 export function PromoBanners() {
   const { t } = useLanguage();
@@ -14,7 +15,7 @@ export function PromoBanners() {
         <p className="promo-label">{t("promo_wholesale_label")}</p>
         <h3>{t("promo_wholesale_title")}</h3>
         <a href={`tel:${OPERATOR.phone.replace(/\s/g, "")}`} className="btn btn-yellow">
-          {t("promo_wholesale_btn")} <span className="arrow-ico">→</span>
+          {t("promo_wholesale_btn")} <ArrowRightIcon size={16} className="arrow-ico" />
         </a>
         <div className="promo-img">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -27,7 +28,7 @@ export function PromoBanners() {
         <p className="promo-label">{t("promo_gift_label")}</p>
         <h3>{t("promo_gift_title")}</h3>
         <Link href="/products/pp020-essen" className="btn btn-yellow">
-          {t("promo_gift_btn")} <span className="arrow-ico">→</span>
+          {t("promo_gift_btn")} <ArrowRightIcon size={16} className="arrow-ico" />
         </Link>
         <div className="promo-img">
           {/* eslint-disable-next-line @next/next/no-img-element */}

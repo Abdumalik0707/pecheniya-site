@@ -3,11 +3,11 @@
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { OPERATOR } from "@/lib/data";
 import { useLanguage } from "@/lib/i18n";
 import { LanguageSwitcher } from "./LanguageSwitcher";
-import { PhoneIcon } from "./Icons";
+import { BoxIcon, PhoneIcon, UserIcon, LogoutIcon, MenuIcon, CloseIcon, SunIcon, MoonIcon } from "./Icons";
 
 interface StoredUser {
   name: string;
@@ -20,9 +20,10 @@ export function Navbar() {
   const { t } = useLanguage();
   const [mounted, setMounted] = useState(false);
   const [user, setUser] = useState<StoredUser | null>(null);
-  const [dropOpen, setDropOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
+  const onProfile = pathname === "/profile";
 
   useEffect(() => {
     setMounted(true);
@@ -36,347 +37,212 @@ export function Navbar() {
     fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
     localStorage.removeItem("pecheniya_user");
     setUser(null);
-    setDropOpen(false);
     setMobileOpen(false);
     router.push("/");
   }
 
+  const isDark = theme === "dark";
+  const themeLabel = isDark ? "Yorug' rejim" : "Qorong'i rejim";
+  const telHref = `tel:${OPERATOR.phone.replace(/\s/g, "")}`;
+
   return (
-    <nav
-      style={{
-        position: "sticky",
-        top: 0,
-        zIndex: 50,
-        background: "var(--brand-red)",
-        boxShadow: "0 2px 0 var(--brand-red-deep)",
-      }}
-    >
-      <div
-        style={{
-          maxWidth: 1200,
-          margin: "0 auto",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          height: 72,
-          padding: "0 16px",
-        }}
-      >
+    <nav className="nav">
+      <div className="nav-inner">
         {/* Logo */}
-        <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
+        <Link href="/" className="nav-logo">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/smag-logo.png" alt="SmaG" style={{ height: 44, width: "auto", borderRadius: 8 }} />
-          <span
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: 24,
-              fontWeight: 400,
-              color: "var(--brand-cream)",
-              letterSpacing: "0.02em",
-            }}
-            className="nav-brand-text"
-          >
-            PECHENIYA
-          </span>
+          <img src="/smag-logo.png" alt="SmaG" />
+          <span className="nav-brand-text">PECHENIYA</span>
         </Link>
 
         {/* Desktop links */}
-        <div style={{ display: "flex", alignItems: "center", gap: 28 }} className="nav-desktop-only">
-          <Link href="/#mahsulotlar" style={{ color: "var(--brand-cream)", fontSize: 14, fontWeight: 700, textDecoration: "none", textTransform: "uppercase", letterSpacing: "0.04em" }}>
-            {t("nav_products")}
-          </Link>
-          <Link href="/#qanday" style={{ color: "var(--brand-cream)", fontSize: 14, fontWeight: 700, textDecoration: "none", textTransform: "uppercase", letterSpacing: "0.04em" }}>
-            {t("nav_how")}
-          </Link>
-          <a
-            href={`tel:${OPERATOR.phone.replace(/\s/g, "")}`}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              color: "var(--brand-yellow)",
-              fontSize: 14,
-              fontWeight: 700,
-              textDecoration: "none",
-            }}
-          >
-            <PhoneIcon size={14} color="var(--brand-yellow)" /> {OPERATOR.phone}
+        <div className="nav-links nav-desktop-only">
+          <Link href="/#mahsulotlar" className="nav-link">{t("nav_products")}</Link>
+          {mounted && user && (
+            <Link href="/profile" className="nav-link">{t("nav_orders")}</Link>
+          )}
+          <a href={telHref} className="nav-phone">
+            <PhoneIcon size={15} /> {OPERATOR.phone}
           </a>
         </div>
 
         {/* Right (desktop) */}
-        <div className="nav-desktop-right" style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div className="nav-actions nav-desktop-only">
           <LanguageSwitcher />
 
           {mounted && (
             <button
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              style={{
-                width: 38,
-                height: 38,
-                borderRadius: 10,
-                border: "1px solid rgba(255,246,234,0.35)",
-                background: "rgba(255,246,234,0.14)",
-                cursor: "pointer",
-                fontSize: 16,
-                display: "grid",
-                placeItems: "center",
-                color: "var(--brand-cream)",
-              }}
-              aria-label="Temani almashtirish"
+              onClick={() => setTheme(isDark ? "light" : "dark")}
+              className="nav-icon-btn"
+              aria-label={themeLabel}
+              title={themeLabel}
             >
-              {theme === "dark" ? "☀️" : "🌙"}
+              {isDark ? <SunIcon size={18} /> : <MoonIcon size={18} />}
             </button>
           )}
 
-          {mounted && (
-            user ? (
-              <div style={{ position: "relative" }}>
-                <button
-                  onClick={() => setDropOpen(!dropOpen)}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                    padding: "7px 14px",
-                    borderRadius: 20,
-                    border: "1px solid rgba(255,246,234,0.35)",
-                    background: "rgba(255,246,234,0.14)",
-                    cursor: "pointer",
-                    color: "var(--brand-cream)",
-                    fontSize: 14,
-                    fontWeight: 600,
-                  }}
-                >
-                  <span style={{
-                    width: 26,
-                    height: 26,
-                    borderRadius: "50%",
-                    background: "var(--brand-yellow)",
-                    color: "var(--brand-choco-deep)",
-                    display: "grid",
-                    placeItems: "center",
-                    fontSize: 13,
-                    fontWeight: 800,
-                  }}>
-                    {user.name.charAt(0).toUpperCase()}
-                  </span>
-                  <span>{user.name}</span>
-                  <span style={{ fontSize: 10, opacity: 0.5 }}>▼</span>
-                </button>
-
-                {dropOpen && (
-                  <div
-                    style={{
-                      position: "absolute",
-                      right: 0,
-                      top: "calc(100% + 8px)",
-                      background: "var(--surface)",
-                      border: "1px solid var(--border)",
-                      borderRadius: 16,
-                      boxShadow: "var(--shadow)",
-                      minWidth: 180,
-                      padding: "8px",
-                      zIndex: 100,
-                    }}
-                  >
-                    <div style={{ padding: "8px 12px", borderBottom: "1px solid var(--border)", marginBottom: 4 }}>
-                      <p style={{ fontSize: 13, fontWeight: 700, color: "var(--fg)", margin: 0 }}>{user.name}</p>
-                      <p style={{ fontSize: 11, color: "var(--muted)", margin: 0 }}>{user.phone}</p>
-                    </div>
-                    <Link
-                      href="/profile"
-                      onClick={() => setDropOpen(false)}
-                      style={{
-                        display: "block",
-                        padding: "8px 12px",
-                        borderRadius: 10,
-                        color: "var(--fg)",
-                        fontSize: 13,
-                        fontWeight: 700,
-                        textDecoration: "none",
-                      }}
-                    >
-                      👤 {t("nav_profile")}
-                    </Link>
-                    <button
-                      onClick={handleLogout}
-                      style={{
-                        width: "100%",
-                        textAlign: "left",
-                        padding: "8px 12px",
-                        borderRadius: 10,
-                        background: "none",
-                        border: "none",
-                        cursor: "pointer",
-                        color: "var(--red, #ef4444)",
-                        fontSize: 13,
-                        fontWeight: 600,
-                      }}
-                    >
-                      {t("nav_logout")}
-                    </button>
-                  </div>
-                )}
-              </div>
-            ) : (
+          {mounted &&
+            (user ? (
               <>
                 <Link
-                  href="/auth/login"
-                  style={{
-                    fontSize: 14,
-                    fontWeight: 700,
-                    color: "var(--brand-cream)",
-                    textDecoration: "none",
-                    padding: "9px 18px",
-                    borderRadius: 999,
-                    border: "2px solid rgba(255,246,234,0.6)",
-                  }}
+                  href="/profile?tab=info"
+                  className={`nav-profile ${onProfile ? "is-active" : ""}`}
+                  aria-current={onProfile ? "page" : undefined}
                 >
-                  {t("nav_login")}
+                  <span className="nav-avatar">{user.name.charAt(0).toUpperCase()}</span>
+                  <span className="nav-profile-text">
+                    <small>{t("nav_profile")}</small>
+                    <b>{user.name}</b>
+                  </span>
                 </Link>
-
-                <Link
-                  href="/auth/register"
-                  style={{
-                    fontSize: 14,
-                    fontWeight: 700,
-                    background: "var(--brand-yellow)",
-                    color: "var(--brand-choco-deep)",
-                    textDecoration: "none",
-                    padding: "11px 22px",
-                    borderRadius: 999,
-                    boxShadow: "0 4px 0 var(--brand-yellow-deep)",
-                  }}
-                >
-                  {t("nav_register")}
-                </Link>
+                <button onClick={handleLogout} className="nav-icon-btn" aria-label={t("nav_logout")} title={t("nav_logout")}>
+                  <LogoutIcon size={18} />
+                </button>
               </>
-            )
-          )}
+            ) : (
+              <>
+                <Link href="/auth/login" className="nav-login">{t("nav_login")}</Link>
+                <Link href="/auth/register" className="btn btn-yellow btn-sm nav-register">{t("nav_register")}</Link>
+              </>
+            ))}
         </div>
 
-        {/* Mobile: hamburger only */}
-        <button
-          className="nav-mobile-only"
-          onClick={() => setMobileOpen(!mobileOpen)}
-          aria-label="Menyu"
-          style={{
-            width: 40,
-            height: 40,
-            borderRadius: 10,
-            border: "1px solid rgba(255,246,234,0.35)",
-            background: "rgba(255,246,234,0.14)",
-            fontSize: 18,
-            lineHeight: 1,
-            color: "var(--brand-cream)",
-            cursor: "pointer",
-            placeItems: "center",
-            padding: 0,
-          }}
-        >
-          {mobileOpen ? "✕" : "☰"}
-        </button>
+        {/* Mobile: profile shortcut + hamburger */}
+        <div className="nav-mobile-only nav-mobile-bar">
+          {mounted && user && (
+            <Link href="/profile" className="nav-avatar nav-avatar-link" aria-label={t("nav_profile")}>
+              {user.name.charAt(0).toUpperCase()}
+            </Link>
+          )}
+          <button
+            className="nav-icon-btn nav-burger"
+            onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label={mobileOpen ? "Menyuni yopish" : "Menyu"}
+            aria-expanded={mobileOpen}
+          >
+            {mobileOpen ? <CloseIcon size={22} /> : <MenuIcon size={22} />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile dropdown panel */}
       {mobileOpen && (
-        <div
-          className="nav-mobile-only"
-          style={{
-            borderTop: "1px solid var(--border)",
-            background: "var(--surface)",
-            padding: "16px",
-            display: "flex",
-            flexDirection: "column",
-            gap: 14,
-          }}
-        >
-          <Link href="/#mahsulotlar" onClick={() => setMobileOpen(false)} style={{ color: "var(--fg)", fontSize: 15, fontWeight: 600, textDecoration: "none" }}>
+        <div className="nav-mobile-only nav-mobile-panel">
+          <Link href="/#mahsulotlar" onClick={() => setMobileOpen(false)} className="nav-mobile-link">
             {t("nav_products")}
           </Link>
-          <Link href="/#qanday" onClick={() => setMobileOpen(false)} style={{ color: "var(--fg)", fontSize: 15, fontWeight: 600, textDecoration: "none" }}>
-            {t("nav_how")}
-          </Link>
-          <a href={`tel:${OPERATOR.phone.replace(/\s/g, "")}`} style={{ color: "var(--accent)", fontSize: 15, fontWeight: 700, textDecoration: "none", display: "flex", alignItems: "center", gap: 6 }}>
-            <PhoneIcon size={15} color="var(--accent)" /> {OPERATOR.phone}
+          {mounted && user && (
+            <Link href="/profile" onClick={() => setMobileOpen(false)} className="nav-mobile-link">
+              <BoxIcon size={18} /> {t("nav_orders")}
+            </Link>
+          )}
+          <a href={telHref} className="nav-mobile-link nav-mobile-phone">
+            <PhoneIcon size={17} /> {OPERATOR.phone}
           </a>
 
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 10, borderTop: "1px solid var(--border)" }}>
+          <div className="nav-mobile-row">
             <LanguageSwitcher />
             {mounted && (
               <button
-                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                style={{
-                  width: 38, height: 38, borderRadius: 10, border: "1px solid var(--border)",
-                  background: "var(--surface-2)", cursor: "pointer", fontSize: 16,
-                  display: "grid", placeItems: "center", color: "var(--fg)",
-                }}
+                onClick={() => setTheme(isDark ? "light" : "dark")}
+                className="nav-icon-btn nav-icon-btn-dark"
+                aria-label={themeLabel}
               >
-                {theme === "dark" ? "☀️" : "🌙"}
+                {isDark ? <SunIcon size={18} /> : <MoonIcon size={18} />}
               </button>
             )}
           </div>
 
-          {mounted && (
-            user ? (
-              <>
-                <div style={{ fontSize: 13, color: "var(--muted)" }}>{user.name} · {user.phone}</div>
-                <Link
-                  href="/profile"
-                  onClick={() => setMobileOpen(false)}
-                  style={{
-                    padding: "12px", borderRadius: 14, background: "var(--brand-yellow)", color: "var(--brand-choco-deep)",
-                    fontSize: 14, fontWeight: 800, textAlign: "center", textDecoration: "none",
-                  }}
-                >
-                  👤 {t("nav_profile")}
+          {mounted &&
+            (user ? (
+              <div className="nav-mobile-actions">
+                <Link href="/profile?tab=info" onClick={() => setMobileOpen(false)} className="btn btn-yellow">
+                  <UserIcon size={18} /> {t("nav_profile")}
                 </Link>
-                <button
-                  onClick={handleLogout}
-                  style={{
-                    padding: "12px", borderRadius: 14, background: "var(--surface-2)",
-                    border: "1px solid var(--border)", color: "var(--red, #ef4444)",
-                    fontSize: 14, fontWeight: 700, cursor: "pointer",
-                  }}
-                >
-                  {t("nav_logout")}
+                <button onClick={handleLogout} className="nav-mobile-logout">
+                  <LogoutIcon size={18} /> {t("nav_logout")}
                 </button>
-              </>
+              </div>
             ) : (
-              <div style={{ display: "flex", gap: 10 }}>
-                <Link
-                  href="/auth/login"
-                  onClick={() => setMobileOpen(false)}
-                  style={{
-                    flex: 1, textAlign: "center", fontSize: 14, fontWeight: 600, color: "var(--fg)",
-                    textDecoration: "none", padding: "12px", borderRadius: 14, border: "1px solid var(--border)",
-                  }}
-                >
+              <div className="nav-mobile-actions two">
+                <Link href="/auth/login" onClick={() => setMobileOpen(false)} className="nav-mobile-logout" style={{ color: "var(--fg)" }}>
                   {t("nav_login")}
                 </Link>
-                <Link
-                  href="/auth/register"
-                  onClick={() => setMobileOpen(false)}
-                  style={{
-                    flex: 1, textAlign: "center", fontSize: 14, fontWeight: 700, background: "var(--accent)",
-                    color: "#fff", textDecoration: "none", padding: "12px", borderRadius: 14,
-                  }}
-                >
+                <Link href="/auth/register" onClick={() => setMobileOpen(false)} className="btn btn-red">
                   {t("nav_register")}
                 </Link>
               </div>
-            )
-          )}
+            ))}
         </div>
       )}
 
       <style>{`
+        .nav { position: sticky; top: 0; z-index: 50; background: var(--brand-red); box-shadow: 0 2px 0 var(--brand-red-deep); }
+        .nav-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 72px; padding: 0 16px; gap: 16px; }
+        .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0; }
+        .nav-logo img { height: 44px; width: auto; border-radius: 8px; }
+        .nav-brand-text { font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--brand-cream); letter-spacing: 0.02em; }
+
+        .nav-links { display: flex; align-items: center; gap: 28px; }
+        .nav-link { color: var(--brand-cream); font-size: 14px; font-weight: 700; text-decoration: none; text-transform: uppercase; letter-spacing: 0.04em; position: relative; padding: 4px 0; }
+        .nav-link::after { content: ""; position: absolute; left: 0; right: 0; bottom: -2px; height: 2px; border-radius: 2px; background: var(--brand-yellow); transform: scaleX(0); transition: transform 0.2s; }
+        .nav-link:hover::after { transform: scaleX(1); }
+        .nav-phone { display: inline-flex; align-items: center; gap: 7px; color: var(--brand-yellow); font-size: 14px; font-weight: 700; text-decoration: none; }
+
+        .nav-actions { display: flex; align-items: center; gap: 10px; }
+        .nav-icon-btn {
+          width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0;
+          display: inline-flex; align-items: center; justify-content: center; padding: 0;
+          border: 1px solid rgba(255,246,234,0.35); background: rgba(255,246,234,0.14);
+          color: var(--brand-cream); cursor: pointer; transition: background 0.15s;
+        }
+        .nav-icon-btn:hover { background: rgba(255,246,234,0.26); }
+        .nav-icon-btn:focus-visible, .nav-profile:focus-visible, .nav-login:focus-visible { outline: 3px solid var(--brand-yellow); outline-offset: 2px; }
+
+        .nav-profile {
+          display: inline-flex; align-items: center; gap: 10px; padding: 4px 16px 4px 4px; border-radius: 999px;
+          background: rgba(255,246,234,0.14); border: 1px solid rgba(255,246,234,0.35);
+          color: var(--brand-cream); text-decoration: none; transition: background 0.15s;
+        }
+        .nav-profile:hover, .nav-profile.is-active { background: var(--brand-cream); color: var(--brand-choco-deep); }
+        .nav-profile-text { display: flex; flex-direction: column; line-height: 1.1; max-width: 150px; }
+        .nav-profile-text small { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.75; }
+        .nav-profile-text b { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .nav-avatar {
+          width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+          display: inline-flex; align-items: center; justify-content: center;
+          background: var(--brand-yellow); color: var(--brand-choco-deep);
+          font-family: var(--font-display); font-weight: 800; font-size: 16px; line-height: 1;
+        }
+        .nav-avatar-link { width: 40px; height: 40px; font-size: 18px; text-decoration: none; box-shadow: 0 3px 0 var(--brand-yellow-deep); }
+
+        .nav-login { color: var(--brand-cream); font-size: 14px; font-weight: 700; text-decoration: none; padding: 9px 18px; border-radius: 999px; border: 2px solid rgba(255,246,234,0.6); }
+        .nav-login:hover { background: rgba(255,246,234,0.14); }
+
+        .nav-mobile-bar { align-items: center; gap: 10px; }
+        .nav-burger { width: 44px; height: 44px; }
+
+        .nav-mobile-panel { flex-direction: column; gap: 4px; padding: 12px 16px 18px; background: var(--surface); border-top: 1px solid var(--border); box-shadow: 0 16px 30px rgba(59,26,11,0.15); }
+        .nav-mobile-link { display: flex; align-items: center; gap: 8px; padding: 12px 4px; color: var(--fg); font-size: 16px; font-weight: 700; text-decoration: none; border-bottom: 1px solid var(--border); }
+        .nav-mobile-phone { color: var(--accent); }
+        .nav-mobile-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; }
+        .nav-icon-btn-dark { border-color: var(--border-strong); background: var(--surface-2); color: var(--fg); }
+        .nav-mobile-actions { display: grid; gap: 10px; }
+        .nav-mobile-actions.two { grid-template-columns: 1fr 1fr; }
+        .nav-mobile-logout {
+          display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+          padding: 13px; border-radius: 999px; border: 2px solid var(--border-strong); background: transparent;
+          color: var(--red); font-size: 15px; font-weight: 700; cursor: pointer; text-decoration: none; font-family: var(--font-dm);
+        }
+
         .nav-mobile-only { display: none !important; }
-        @media (max-width: 860px) {
+        @media (max-width: 920px) {
           .nav-desktop-only { display: none !important; }
-          .nav-desktop-right { display: none !important; }
           .nav-mobile-only { display: flex !important; }
+        }
+        @media (max-width: 380px) {
+          .nav-brand-text { font-size: 20px; }
+          .nav-logo img { height: 38px; }
         }
       `}</style>
     </nav>

@@ -37,7 +37,10 @@ export function ownOrdersFilter(user: CurrentUser) {
   return {
     $or: [
       { userId: user._id },
-      { userId: { $exists: false }, customerPhone: user.phone },
+      {
+        userId: { $exists: false },
+        customerPhone: { $in: [user.phone, user.phone.replace(/\s/g, "")] },
+      },
     ],
   };
 }

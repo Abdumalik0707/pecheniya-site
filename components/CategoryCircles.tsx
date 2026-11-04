@@ -1,6 +1,7 @@
 "use client";
 
 import { useLanguage } from "@/lib/i18n";
+import { ArrowRightIcon } from "./Icons";
 
 interface CategoryItem {
   icon: string;
@@ -37,7 +38,7 @@ export function CategoryCircles({ onSelect }: Props) {
           <div className="cat-card-tab">
             <b>{c.label}</b>
             <span className="btn btn-yellow btn-sm">
-              {t("cats_btn")} <span className="arrow-ico">→</span>
+              {t("cats_btn")} <ArrowRightIcon size={16} className="arrow-ico" />
             </span>
           </div>
         </button>

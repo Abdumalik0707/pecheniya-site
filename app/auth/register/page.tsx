@@ -4,6 +4,7 @@ import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Navbar } from "@/components/Navbar";
+import { CookieIcon, AlertIcon, ArrowRightIcon, CheckCircleIcon, UserIcon, StoreIcon } from "@/components/Icons";
 
 export default function RegisterPage() {
   return (
@@ -91,7 +92,7 @@ function RegisterForm() {
         <div style={{ width: "100%", maxWidth: 440 }}>
           {/* Header */}
           <div style={{ textAlign: "center", marginBottom: 32 }}>
-            <div style={{ fontSize: 48, marginBottom: 12 }}>🍪</div>
+            <div className="auth-badge"><CookieIcon size={34} /></div>
             <h1
               style={{
                 fontFamily: "var(--font-jakarta)",
@@ -120,7 +121,7 @@ function RegisterForm() {
           >
             {success ? (
               <div style={{ textAlign: "center", padding: "20px 0" }}>
-                <div style={{ fontSize: 56, marginBottom: 16 }}>✅</div>
+                <div className="ok-badge"><CheckCircleIcon size={44} /></div>
                 <h2 style={{ fontFamily: "var(--font-jakarta)", fontSize: 22, fontWeight: 800, color: "var(--fg)", marginBottom: 8 }}>
                   Muvaffaqiyatli!
                 </h2>
@@ -136,8 +137,8 @@ function RegisterForm() {
                   <label style={labelStyle}>Siz kimsiz?</label>
                   <div style={{ display: "flex", gap: 8 }}>
                     {([
-                      ["individual", "👤 Oddiy mijoz"],
-                      ["shop", "🏪 Do'kon egasi"],
+                      ["individual", "Oddiy mijoz"],
+                      ["shop", "Do'kon egasi"],
                     ] as const).map(([val, lbl]) => (
                       <button
                         key={val}
@@ -252,7 +253,7 @@ function RegisterForm() {
                       fontWeight: 500,
                     }}
                   >
-                    ⚠️ {error}
+                    <AlertIcon size={15} /> {error}
                   </div>
                 )}
 
@@ -283,7 +284,7 @@ function RegisterForm() {
                       Saqlanmoqda...
                     </>
                   ) : (
-                    "Ro'yxatdan o'tish →"
+                    <>Ro&apos;yxatdan o&apos;tish <ArrowRightIcon size={17} /></>
                   )}
                 </button>
 

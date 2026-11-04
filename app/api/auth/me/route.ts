@@ -56,7 +56,8 @@ export async function PATCH(req: NextRequest) {
           { status: 400 }
         );
       }
-      if (phone !== user.phone) {
+      // compare without spaces: older accounts stored the phone as "+998 90..."
+      if (phone !== user.phone.replace(/\s/g, "")) {
         const full = await User.findById(user._id).select("password");
         const ok = full && (await bcrypt.compare(String(body.currentPassword || ""), full.password));
         if (!ok) {

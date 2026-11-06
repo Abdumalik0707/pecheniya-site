@@ -106,7 +106,7 @@ function ProfileInner() {
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
     localStorage.removeItem("pecheniya_user");
-    router.push("/");
+    window.location.href = "/";
   }
 
   if (loading || !profile) {

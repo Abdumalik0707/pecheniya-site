@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Product from "@/models/Product";
+import { getCurrentUser } from "@/lib/current-user";
+import { priceFor } from "@/lib/pricing";
 
 // Customer site: products are READ-ONLY.
 
-export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     await connectDB();
     const { id } = await params;
@@ -15,7 +17,12 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     if (!product) {
       return NextResponse.json({ success: false, error: "Mahsulot topilmadi" }, { status: 404 });
     }
-    return NextResponse.json({ success: true, product });
+    const user = await getCurrentUser(req);
+    const priceType = user?.type === "shop" ? "shop" : "individual";
+    return NextResponse.json(
+      { success: true, product: { ...product, unitPrice: priceFor(product, priceType), priceType } },
+      { headers: { "Cache-Control": "private, no-store" } }
+    );
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Xatolik";
     return NextResponse.json({ success: false, error: message }, { status: 500 });

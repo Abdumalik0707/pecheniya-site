@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { PAYMENT_CARD, type Product } from "@/lib/data";
-import { priceFor } from "@/lib/pricing";
+import { unitPriceOf } from "@/lib/pricing";
 import { useLanguage } from "@/lib/i18n";
 import { CheckCircleIcon, CloseIcon, MapPinIcon, CashIcon, CardIcon, CheckIcon, ReceiptIcon, AlertIcon, ArrowRightIcon, ArrowLeftIcon, CopyIcon, UserIcon, StoreIcon } from "./Icons";
 
@@ -47,7 +47,7 @@ export function OrderModal({ product, onClose, user }: Props) {
   }, []);
 
   // Logged-in customers get their account's price list; guests pick a type.
-  const unitPrice = priceFor(product, user?.type || customerType);
+  const unitPrice = unitPriceOf(product, user?.type || customerType);
   const total = unitPrice * (qty ?? 1);
   const paymentReady = paymentMethod === "cash" || (paymentMethod === "card" && !!receipt && !receiptUploading);
 
@@ -196,7 +196,7 @@ export function OrderModal({ product, onClose, user }: Props) {
                 </h2>
                 <p style={{ color: "var(--accent)", fontWeight: 700, fontSize: 15, marginTop: 2 }}>
                   {unitPrice.toLocaleString()} so&apos;m / {product.unit}
-                  {(user?.type || customerType) === "shop" && (
+                  {(product.priceType ?? (user?.type || customerType)) === "shop" && (
                     <span style={{ color: "var(--muted)", fontWeight: 600, fontSize: 12 }}> · {t("pay_shop_price")}</span>
                   )}
                 </p>

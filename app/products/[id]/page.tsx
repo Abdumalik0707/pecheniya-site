@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { getProductById, fetchProductById, OPERATOR, Product } from "@/lib/data";
 import { OrderModal } from "@/components/OrderModal";
-import { priceFor } from "@/lib/pricing";
+import { unitPriceOf } from "@/lib/pricing";
+import { useCustomer } from "@/lib/use-customer";
 import { Navbar } from "@/components/Navbar";
 import { ZoomIcon, BoxIcon, CartIcon, PhoneIcon, BoltIcon, CloseIcon, ArrowLeftIcon } from "@/components/Icons";
 
@@ -19,17 +20,18 @@ export default function ProductPage() {
   const [activeImg, setActiveImg] = useState(0);
   const [ordering, setOrdering] = useState(false);
   const [zoomed, setZoomed] = useState(false);
-  const [currentUser, setCurrentUser] = useState<{ name: string; phone: string; type: string } | null>(null);
+  const { user: currentUser } = useCustomer();
+  const autoOpened = useRef(false);
+
+  // coming back from sign-up (?open=1): open the order form once
+  useEffect(() => {
+    if (currentUser && !autoOpened.current && searchParams.get("open") === "1") {
+      autoOpened.current = true;
+      setOrdering(true);
+    }
+  }, [currentUser, searchParams]);
 
   useEffect(() => {
-    const stored = localStorage.getItem("pecheniya_user");
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      setCurrentUser(parsed);
-      if (searchParams.get("open") === "1") {
-        setOrdering(true);
-      }
-    }
     fetchProductById(id)
       .then((p) => { if (p) setProduct(p); })
       .finally(() => setLoading(false));
@@ -287,10 +289,10 @@ export default function ProductPage() {
             >
               <div>
                 <p style={{ color: "var(--muted)", fontSize: 12, marginBottom: 4 }}>
-                  <BoxIcon size={14} /> {product.weight} quti narxi{currentUser?.type === "shop" ? " · do'kon narxi" : ""}
+                  <BoxIcon size={14} /> {product.weight} quti narxi{(product.priceType ?? currentUser?.type) === "shop" ? " · do'kon narxi" : ""}
                 </p>
                 <p style={{ color: "var(--accent)", fontWeight: 900, fontSize: 26, fontFamily: "var(--font-jakarta)" }}>
-                  {priceFor(product, currentUser?.type).toLocaleString()} <span style={{ fontSize: 14, fontWeight: 700 }}>so&apos;m</span>
+                  {unitPriceOf(product, currentUser?.type).toLocaleString()} <span style={{ fontSize: 14, fontWeight: 700 }}>so&apos;m</span>
                 </p>
               </div>
             </div>

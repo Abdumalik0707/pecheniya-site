@@ -7,7 +7,7 @@ import type { Product } from "@/lib/data";
 import { OrderModal } from "./OrderModal";
 import { useLanguage } from "@/lib/i18n";
 import { CookieIcon, StarIcon } from "./Icons";
-import { priceFor } from "@/lib/pricing";
+import { unitPriceOf } from "@/lib/pricing";
 
 interface Props {
   product: Product;
@@ -72,8 +72,8 @@ export function ProductCard({ product, user, isLoggedIn }: Props) {
           <p className="pcard-desc">{product.description}</p>
 
           <div className="pcard-price">
-            <b>{priceFor(product, user?.type).toLocaleString()}</b>
-            <span>so&apos;m / {product.unit}{user?.type === "shop" ? " · do'kon" : ""}</span>
+            <b>{unitPriceOf(product, user?.type).toLocaleString()}</b>
+            <span>so&apos;m / {product.unit}{(product.priceType ?? user?.type) === "shop" ? " · do'kon" : ""}</span>
           </div>
 
           <div className="pcard-actions">

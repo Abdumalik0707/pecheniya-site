@@ -18,6 +18,18 @@ export function shopPriceOf(p: { price: number; shopPrice?: number | null }): nu
   return p.shopPrice && p.shopPrice > 0 ? p.shopPrice : defaultShopPrice(p.price);
 }
 
+/**
+ * Price to display. The server resolves it from the logged-in account
+ * (`unitPrice`), so it is right even if the browser's copy of the account
+ * is stale. Falls back to computing it for the static catalogue.
+ */
+export function unitPriceOf(
+  p: { price: number; shopPrice?: number | null; unitPrice?: number },
+  type?: string | null
+): number {
+  return p.unitPrice && p.unitPrice > 0 ? p.unitPrice : priceFor(p, type);
+}
+
 export function priceFor(
   p: { price: number; shopPrice?: number | null },
   type?: string | null

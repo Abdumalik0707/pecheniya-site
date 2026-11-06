@@ -3,42 +3,32 @@
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { OPERATOR } from "@/lib/data";
 import { useLanguage } from "@/lib/i18n";
+import { useCustomer } from "@/lib/use-customer";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { BoxIcon, PhoneIcon, UserIcon, LogoutIcon, MenuIcon, CloseIcon, SunIcon, MoonIcon } from "./Icons";
-
-interface StoredUser {
-  name: string;
-  phone: string;
-  isAdmin?: boolean;
-}
 
 export function Navbar() {
   const { theme, setTheme } = useTheme();
   const { t } = useLanguage();
   const [mounted, setMounted] = useState(false);
-  const [user, setUser] = useState<StoredUser | null>(null);
+  const { user } = useCustomer();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const router = useRouter();
   const pathname = usePathname();
   const onProfile = pathname === "/profile";
 
   useEffect(() => {
     setMounted(true);
-    try {
-      const raw = localStorage.getItem("pecheniya_user");
-      if (raw) setUser(JSON.parse(raw));
-    } catch {}
   }, []);
 
   function handleLogout() {
     fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
     localStorage.removeItem("pecheniya_user");
-    setUser(null);
     setMobileOpen(false);
-    router.push("/");
+    // full reload so prices and account state reset everywhere
+    window.location.href = "/";
   }
 
   const isDark = theme === "dark";

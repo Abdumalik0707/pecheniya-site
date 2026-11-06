@@ -12,6 +12,9 @@ export interface Product {
   price: number;
   /** Shop (wholesale) customer price; empty = price + 10% (lib/pricing.ts) */
   shopPrice?: number;
+  /** Price for the current visitor, resolved by the API from their account */
+  unitPrice?: number;
+  priceType?: "individual" | "shop";
   weight: string;
   netWeight: string;
   unit: string;

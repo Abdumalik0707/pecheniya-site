@@ -12,6 +12,7 @@ import { Ribbons } from "@/components/Ribbons";
 import { HeroBanner } from "@/components/HeroBanner";
 import { PRODUCTS, OPERATOR, fetchProducts, Product } from "@/lib/data";
 import { useLanguage, type TranslationKey } from "@/lib/i18n";
+import { useCustomer } from "@/lib/use-customer";
 import { CookieIcon, SendIcon, CameraIcon, PhoneIcon, LeafIcon, ChefIcon, TruckIcon, ShieldIcon, HeartIcon, ArrowRightIcon, ChevronDownIcon, CloseIcon } from "@/components/Icons";
 
 const TYPE_FILTERS: { key: string; label: string; tag: string }[] = [
@@ -59,17 +60,11 @@ export default function Home() {
   const [products, setProducts] = useState<Product[]>(PRODUCTS);
   const [subFilter, setSubFilter] = useState<string | null>(null);
   const [typeFilterOpen, setTypeFilterOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [currentUser, setCurrentUser] = useState<{ name: string; phone: string; type: string } | null>(null);
+  const { user: currentUser } = useCustomer();
+  const isLoggedIn = !!currentUser;
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const stored = localStorage.getItem("pecheniya_user");
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      setIsLoggedIn(true);
-      setCurrentUser(parsed);
-    }
     fetchProducts().then((p) => setProducts(p));
     setLoading(false);
   }, []);

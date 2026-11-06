@@ -114,6 +114,8 @@ const dict = {
     footer_link_returns: "Qaytarish siyosati",
     nav_orders: "Buyurtmalarim",
     pf_current_hint: "Telefon raqamni yoki parolni o'zgartirish uchun kerak. Ismni o'zgartirishga shart emas.",
+    pw_show: "Parolni ko'rsatish",
+    pw_hide: "Parolni yashirish",
     // Profile
     nav_profile: "Profilim",
     pf_title: "Shaxsiy kabinet",
@@ -299,6 +301,8 @@ const dict = {
     footer_link_returns: "Политика возврата",
     nav_orders: "Мои заказы",
     pf_current_hint: "Нужен для смены телефона или пароля. Для смены имени не требуется.",
+    pw_show: "Показать пароль",
+    pw_hide: "Скрыть пароль",
     // Profile
     nav_profile: "Мой профиль",
     pf_title: "Личный кабинет",
@@ -484,6 +488,8 @@ const dict = {
     footer_link_returns: "Returns policy",
     nav_orders: "My orders",
     pf_current_hint: "Needed to change your phone number or password. Not needed for your name.",
+    pw_show: "Show password",
+    pw_hide: "Hide password",
     // Profile
     nav_profile: "My profile",
     pf_title: "My account",

@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Navbar } from "@/components/Navbar";
 import { useLanguage, type TranslationKey } from "@/lib/i18n";
+import { PasswordInput } from "@/components/PasswordInput";
+import { PhoneInput, formatPhone, isCompletePhone } from "@/components/PhoneInput";
 import {
   ClipboardCheckIcon, CardIcon, TruckIcon, HomeCheckIcon, CheckIcon, UserIcon, StoreIcon,
   PhoneIcon, CashIcon, ReceiptIcon, CookieIcon, LogoutIcon, ArrowRightIcon, ChevronDownIcon,
@@ -388,7 +390,7 @@ function OrderCard({ order }: { order: Order }) {
 function AccountForm({ profile, onSaved }: { profile: Profile; onSaved: (p: Profile) => void }) {
   const { t } = useLanguage();
   const [name, setName] = useState(profile.name);
-  const [phone, setPhone] = useState(profile.phone);
+  const [phone, setPhone] = useState(formatPhone(profile.phone));
   const [shopName, setShopName] = useState(profile.shopName || "");
   const [currentPassword, setCurrentPassword] = useState("");
   const [changePw, setChangePw] = useState(false);
@@ -407,6 +409,7 @@ function AccountForm({ profile, onSaved }: { profile: Profile; onSaved: (p: Prof
   async function save(e: React.FormEvent) {
     e.preventDefault();
     setMsg(null);
+    if (phoneChanged && !isCompletePhone(phone)) return setMsg({ ok: false, text: "Telefon raqamni to'liq kiriting: +998XXXXXXXXX" });
     if (wantsPw) {
       if (newPw.length < 6) return setMsg({ ok: false, text: t("pf_pw_short") });
       if (newPw !== confirmPw) return setMsg({ ok: false, text: t("pf_pw_mismatch") });
@@ -427,7 +430,7 @@ function AccountForm({ profile, onSaved }: { profile: Profile; onSaved: (p: Prof
         const data = await res.json();
         if (!data.success) throw new Error(data.error);
         onSaved(data.user);
-        setPhone(data.user.phone);
+        setPhone(formatPhone(data.user.phone));
         localStorage.setItem("pecheniya_user", JSON.stringify(data.user));
       }
       if (wantsPw) {
@@ -462,7 +465,7 @@ function AccountForm({ profile, onSaved }: { profile: Profile; onSaved: (p: Prof
         </div>
         <div>
           <label className="pf-label" htmlFor="pf-phone">{t("om_phone")}</label>
-          <input id="pf-phone" className="pf-input" value={phone} onChange={(e) => setPhone(e.target.value)} inputMode="tel" autoComplete="tel" placeholder="+998901234567" />
+          <PhoneInput id="pf-phone" className="pf-input" value={phone} onValueChange={setPhone} />
         </div>
         {profile.type === "shop" && (
           <div>
@@ -477,10 +480,9 @@ function AccountForm({ profile, onSaved }: { profile: Profile; onSaved: (p: Prof
       <div className="pf-group">
         <div>
           <label className="pf-label" htmlFor="pf-cur">{t("pf_current_password")}</label>
-          <input
+          <PasswordInput
             id="pf-cur"
             className="pf-input"
-            type="password"
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
             autoComplete="current-password"
@@ -503,11 +505,11 @@ function AccountForm({ profile, onSaved }: { profile: Profile; onSaved: (p: Prof
           <div id="pf-newpw" className="pf-group">
             <div>
               <label className="pf-label" htmlFor="pw-new">{t("pf_new_password")}</label>
-              <input id="pw-new" className="pf-input" type="password" value={newPw} onChange={(e) => setNewPw(e.target.value)} autoComplete="new-password" />
+              <PasswordInput id="pw-new" className="pf-input" value={newPw} onChange={(e) => setNewPw(e.target.value)} autoComplete="new-password" />
             </div>
             <div>
               <label className="pf-label" htmlFor="pw-conf">{t("pf_confirm_password")}</label>
-              <input id="pw-conf" className="pf-input" type="password" value={confirmPw} onChange={(e) => setConfirmPw(e.target.value)} autoComplete="new-password" />
+              <PasswordInput id="pw-conf" className="pf-input" value={confirmPw} onChange={(e) => setConfirmPw(e.target.value)} autoComplete="new-password" />
             </div>
           </div>
         )}

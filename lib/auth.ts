@@ -11,6 +11,9 @@ const TOKEN_NAME = "smag_user_token";
 const MAX_AGE = 60 * 60 * 24 * 30; // 30 days
 
 function getSecret(): Uint8Array {
+  if (!process.env.JWT_SECRET && process.env.NODE_ENV === "production") {
+    console.warn("[security] JWT_SECRET is not set — sessions are signed with a key derived from MONGODB_URI. Set JWT_SECRET.");
+  }
   const raw = process.env.JWT_SECRET || process.env.MONGODB_URI || "";
   return new TextEncoder().encode(raw.slice(0, 64));
 }

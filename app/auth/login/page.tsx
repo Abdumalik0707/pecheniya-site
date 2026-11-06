@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Navbar } from "@/components/Navbar";
 import { CookieIcon, AlertIcon, ArrowRightIcon } from "@/components/Icons";
+import { PasswordInput } from "@/components/PasswordInput";
+import { PhoneInput, isCompletePhone } from "@/components/PhoneInput";
 
 export default function LoginPage() {
   return (
@@ -18,7 +20,7 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") || "/";
-  const [phone, setPhone] = useState("+998 ");
+  const [phone, setPhone] = useState("+998");
   const [pass, setPass] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -29,18 +31,16 @@ function LoginForm() {
     setLoading(true);
 
     try {
-      // Admin faqat username orqali kiradi (frontend'da "+" bilan boshlanmagan kirish)
-      const trimmed = phone.trim();
-      const isUsername = !trimmed.startsWith("+");
+      if (!isCompletePhone(phone)) {
+        setError("Telefon raqamni to'liq kiriting: +998XXXXXXXXX");
+        setLoading(false);
+        return;
+      }
 
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(
-          isUsername
-            ? { username: trimmed, password: pass }
-            : { phone: trimmed, password: pass }
-        ),
+        body: JSON.stringify({ phone: phone.replace(/s/g, ""), password: pass }),
       });
 
       const data = await res.json();
@@ -107,26 +107,18 @@ function LoginForm() {
             <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               <div>
                 <label style={labelStyle}>Telefon raqam</label>
-                <input
+                <PhoneInput
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  onFocus={(e) => {
-                    if (!phone.trim() || phone === "+998 ") {
-                      e.target.setSelectionRange(phone.length, phone.length);
-                    }
-                  }}
-                  placeholder="+998 90 000 00 00"
+                  onValueChange={setPhone}
                   style={inputStyle}
                   required
                   autoComplete="username"
-                  inputMode="tel"
                 />
               </div>
 
               <div>
                 <label style={labelStyle}>Parol</label>
-                <input
-                  type="password"
+                <PasswordInput
                   value={pass}
                   onChange={(e) => setPass(e.target.value)}
                   placeholder="Parolingiz"

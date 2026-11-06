@@ -27,6 +27,10 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    const auth = await verifyToken(req);
+    if (!auth) {
+      return NextResponse.json({ success: false, error: "Tizimga kiring" }, { status: 401 });
+    }
     const form = await req.formData();
     const file = form.get("file");
     if (!(file instanceof File)) {
@@ -42,7 +46,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Faqat JPG, PNG yoki WEBP rasm" }, { status: 400 });
     }
 
-    const auth = await verifyToken(req);
     await connectDB();
     const receipt = await Receipt.create({
       data: `data:${type};base64,${buf.toString("base64")}`,

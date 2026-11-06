@@ -2,11 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import Order from "@/models/Order";
 import Product from "@/models/Product";
-import User from "@/models/User";
 import Receipt from "@/models/Receipt";
 import { priceFor } from "@/lib/pricing";
 import { getCurrentUser, ownOrdersFilter } from "@/lib/current-user";
-import { verifyToken } from "@/lib/auth";
 import { rateLimit } from "@/lib/rate-limit";
 
 export async function GET(req: NextRequest) {
@@ -84,12 +82,15 @@ export async function POST(req: NextRequest) {
 
     // Customer type decides the price list. A logged-in customer's type comes
     // from their account, never from the request body.
-    let customerType: "individual" | "shop" = body.customerType === "shop" ? "shop" : "individual";
-    const auth = await verifyToken(req);
-    if (auth && /^[0-9a-fA-F]{24}$/.test(auth.sub)) {
-      const account = await User.findById(auth.sub).select("type").lean();
-      if (account) customerType = account.type === "shop" ? "shop" : "individual";
+    const account = await getCurrentUser(req);
+    if (!account) {
+      return NextResponse.json(
+        { success: false, error: "Buyurtma berish uchun tizimga kiring" },
+        { status: 401 }
+      );
     }
+    const customerType: "individual" | "shop" = account.type === "shop" ? "shop" : "individual";
+    const auth = { sub: account._id };
 
     // SERVER-SIDE PRICE VALIDATION: fetch real prices from DB
     const productIds = body.products

@@ -3,13 +3,13 @@ import bcrypt from "bcryptjs";
 import { connectDB } from "@/lib/mongodb";
 import User from "@/models/User";
 import { signToken, userCookieHeader } from "@/lib/auth";
-import { rateLimit } from "@/lib/rate-limit";
+import { hit, clientIp } from "@/lib/rate-limit-db";
+import { phoneVariants } from "@/lib/phone";
 
 export async function POST(req: NextRequest) {
   try {
-    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-    const rl = rateLimit(`register:${ip}`, { limit: 5, windowMs: 60_000 });
-    if (!rl.ok) {
+    // at most 8 sign-ups per hour from one address (stored in MongoDB, survives cold starts)
+    if ((await hit(`register-ip:${clientIp(req)}`, 60 * 60_000)) > 8) {
       return NextResponse.json(
         { error: "Juda ko'p urinish. 1 daqiqa kuting." },
         { status: 429 }
@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
 
     await connectDB();
 
-    const existing = await User.findOne({ phone });
+    const existing = await User.findOne({ phone: { $in: phoneVariants(cleanPhone) } });
     if (existing) {
       return NextResponse.json(
         { error: "Bu telefon raqam allaqachon ro'yxatdan o'tgan" },
@@ -79,6 +79,13 @@ export async function POST(req: NextRequest) {
     res.headers.set("Set-Cookie", userCookieHeader(token));
     return res;
   } catch (err) {
+    // two sign-ups at the same moment: the unique phone index rejects the second
+    if ((err as { code?: number }).code === 11000) {
+      return NextResponse.json(
+        { error: "Bu telefon raqam allaqachon ro'yxatdan o'tgan" },
+        { status: 409 }
+      );
+    }
     console.error("Register error:", err);
     return NextResponse.json({ error: "Server xatosi" }, { status: 500 });
   }

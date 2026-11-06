@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import User from "@/models/User";
 import { getCurrentUser, publicUser } from "@/lib/current-user";
 import { rateLimit } from "@/lib/rate-limit";
+import { phoneVariants } from "@/lib/phone";
 
 const unauthorized = () =>
   NextResponse.json({ success: false, error: "Avtorizatsiya talab qilinadi" }, { status: 401 });
@@ -66,7 +67,7 @@ export async function PATCH(req: NextRequest) {
             { status: 400 }
           );
         }
-        const taken = await User.exists({ phone, _id: { $ne: user._id } });
+        const taken = await User.exists({ phone: { $in: phoneVariants(phone) }, _id: { $ne: user._id } });
         if (taken) {
           return NextResponse.json(
             { success: false, error: "Bu telefon raqam boshqa akkauntga biriktirilgan" },

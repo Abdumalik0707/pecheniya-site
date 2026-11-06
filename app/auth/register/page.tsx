@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Navbar } from "@/components/Navbar";
 import { CookieIcon, AlertIcon, ArrowRightIcon, CheckCircleIcon, UserIcon, StoreIcon } from "@/components/Icons";
+import { PasswordInput } from "@/components/PasswordInput";
+import { PhoneInput, isCompletePhone } from "@/components/PhoneInput";
 
 export default function RegisterPage() {
   return (
@@ -19,7 +21,7 @@ function RegisterForm() {
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") || "/";
   const [name, setName] = useState("");
-  const [phone, setPhone] = useState("+998 ");
+  const [phone, setPhone] = useState("+998");
   const [pass, setPass] = useState("");
   const [passConfirm, setPassConfirm] = useState("");
   const [type, setType] = useState<"individual" | "shop">("individual");
@@ -32,6 +34,10 @@ function RegisterForm() {
     e.preventDefault();
     setError("");
 
+    if (!isCompletePhone(phone)) {
+      setError("Telefon raqamni to'liq kiriting: +998XXXXXXXXX");
+      return;
+    }
     if (pass !== passConfirm) {
       setError("Parollar mos kelmadi");
       return;
@@ -50,7 +56,7 @@ function RegisterForm() {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone, password: pass, type, shopName }),
+        body: JSON.stringify({ name, phone: phone.replace(/s/g, ""), password: pass, type, shopName }),
       });
 
       const data = await res.json();
@@ -192,21 +198,18 @@ function RegisterForm() {
                 {/* Phone */}
                 <div>
                   <label style={labelStyle}>Telefon raqam</label>
-                  <input
+                  <PhoneInput
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+998 90 000 00 00"
+                    onValueChange={setPhone}
                     style={inputStyle}
                     required
-                    type="tel"
                   />
                 </div>
 
                 {/* Password */}
                 <div>
                   <label style={labelStyle}>Parol</label>
-                  <input
-                    type="password"
+                  <PasswordInput
                     value={pass}
                     onChange={(e) => setPass(e.target.value)}
                     placeholder="Kamida 6 belgi"
@@ -219,8 +222,7 @@ function RegisterForm() {
                 {/* Confirm password */}
                 <div>
                   <label style={labelStyle}>Parolni tasdiqlang</label>
-                  <input
-                    type="password"
+                  <PasswordInput
                     value={passConfirm}
                     onChange={(e) => setPassConfirm(e.target.value)}
                     placeholder="Parolni qayta kiriting"
